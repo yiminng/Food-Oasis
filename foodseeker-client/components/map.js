@@ -3,8 +3,6 @@ import ReactMapGL, { NavigationControl } from 'react-map-gl'
 import cn from 'classnames'
 import Image from 'next/image'
 
-import styles from 'styles/map.module.css'
-
 export default function Map() {
   const mapRef = useRef()
 
@@ -41,8 +39,8 @@ export default function Map() {
   const STATIC_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${viewport.longitude},${viewport.latitude},${viewport.zoom}/${width}x${height}?access_token=${ACCESS_TOKEN}`
 
   return (
-    <div className={styles.container}>
-      <div className={cn(styles.map, { [styles.hidden]: !showMap })}>
+    <div className="container">
+      <div className={cn('map', 'z-index', { 'hidden': !showMap })}>
         <ReactMapGL
           ref={mapRef}
           mapboxApiAccessToken={ACCESS_TOKEN}
@@ -52,14 +50,34 @@ export default function Map() {
           maxZoom={18}
           minZoom={8}
         >
-          <div className={styles.mapControl}>
+          <div className="control">
             <NavigationControl showCompass={false} />
           </div>
         </ReactMapGL>
       </div>
-      <div className={styles.mapPlaceholder}>
+      <div className="map">
         <Image src={STATIC_URL} width={width} height={height} alt="Los Angeles" />
       </div>
+      <style jsx>{`
+        .control {
+          position: absolute;
+          right: 5px;
+          top: 5px;
+        }
+        .container {
+          display: grid;
+        }
+        .z-index {
+          z-index: 1;
+        }
+        .map {
+          grid-column: 1;
+          grid-row: 1;
+        }
+        .hidden {
+          visibility: hidden;
+        }
+      `}</style>
     </div>
   )
 }
