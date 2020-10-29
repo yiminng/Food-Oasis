@@ -3,6 +3,8 @@ import ReactMapGL, { NavigationControl } from 'react-map-gl'
 import cn from 'classnames'
 import Image from 'next/image'
 
+import theme from 'theme'
+
 export default function Map() {
   const mapRef = useRef()
 
@@ -55,7 +57,7 @@ export default function Map() {
           </div>
         </ReactMapGL>
       </div>
-      <div className="map">
+      <div className={cn('map', { 'hidden': showMap })}>
         <Image src={STATIC_URL} width={width} height={height} alt="Los Angeles" />
       </div>
       <style jsx>{`
@@ -76,6 +78,11 @@ export default function Map() {
         }
         .hidden {
           visibility: hidden;
+        }
+        @media screen and (${theme.breakpoints.mediumDown}) {
+          .map {
+            height: 75%;
+          }
         }
       `}</style>
     </div>

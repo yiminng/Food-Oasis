@@ -10,9 +10,7 @@ export default function Results({ results }) {
       </ul>
       <style jsx>{`
         .list {
-          height: 100%;
           margin: 0;
-          overflow-y: scroll;
         }
         .result {
           padding: 10px;

@@ -21,6 +21,9 @@ const theme = {
     background: '#fff',
   },
   fontFamily: '"Helvetica Neue", Helvetica, sans-serif;',
+  breakpoints: {
+    mediumDown: 'max-width: 740px'
+  }
 }
 
 export default theme

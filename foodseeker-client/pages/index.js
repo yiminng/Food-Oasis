@@ -15,10 +15,10 @@ export default function Home({ results }) {
       <main className="main">
         <div className="filter"></div>
         <div className="main-content">
-          <div className="content-item">
+          <div className="content-item list">
             <Results results={results} />
           </div>
-          <div className="content-item">
+          <div className="content-item map">
             <DynamicMapWithNoSSR />
           </div>
         </div>
@@ -42,6 +42,25 @@ export default function Home({ results }) {
         }
         .content-item {
           width: 50%;
+        }
+        .list {
+          height: 100%;
+          overflow-y: scroll;
+        }
+        @media screen and (max-width: 740px) {
+          .main-content {
+            flex-direction: column;
+            overflow: visible;
+          }
+          .content-item {
+            width: 100%;
+          }
+          .list {
+            order: 1;
+          }
+          .map {
+            height: 75%;
+          }
         }
     `}</style>
     </div>
