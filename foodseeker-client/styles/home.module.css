@@ -1,0 +1,22 @@
+.main {
+  height: 100vh;
+  width: 100vw;
+}
+
+.filter {
+  width: 100%;
+  height: 50px;
+  background-color: blue;
+}
+
+.mainContent {
+  height: calc(100% - 50px);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.contentItem {
+  width: 50%;
+}
