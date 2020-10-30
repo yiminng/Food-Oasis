@@ -79,11 +79,6 @@ export default function Map() {
         .hidden {
           visibility: hidden;
         }
-        @media screen and (${theme.breakpoints.mediumDown}) {
-          .map {
-            height: 75%;
-          }
-        }
       `}</style>
     </div>
   )

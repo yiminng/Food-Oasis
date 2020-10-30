@@ -1,29 +1,65 @@
-const theme = {
+import { createMuiTheme } from "@material-ui/core/styles";
+
+const theme = createMuiTheme({
   palette: {
     primary: {
       // blue
-      light: '#1976d2',
-      main: '#336699',
-      dark: '#0A3865',
-      text: '#ffffff',
+      light: "#1976d2",
+      main: "#336699",
+      dark: "#0A3865",
+      contrastText: "#ffffff",
     },
     secondary: {
       // orange
-      main: '#f9c058',
-      text: '#000000',
+      main: "#f9c058",
+      contrastText: "#000000",
     },
     error: {
       // red
-      main: '#f94040',
-      text: '#000000',
+      main: "#f94040",
+      contrastText: "#000000",
     },
-    text: '#313233',
-    background: '#fff',
+    text: {
+      primary: "#313233",
+    },
   },
-  fontFamily: '"Helvetica Neue", Helvetica, sans-serif;',
-  breakpoints: {
-    mediumDown: 'max-width: 740px'
-  }
-}
+  typography: {
+    fontFamily: '"Helvetica Neue", Helvetica, sans-serif;',
+  },
+});
 
-export default theme
+const { primary } = theme.palette;
+
+theme.overrides = {
+  MuiButton: {
+    outlined: {
+      border: `2px solid ${primary.main}`,
+      color: primary.main,
+      "&:hover": {
+        color: primary.contrastText,
+        backgroundColor: primary.main,
+      },
+    },
+  },
+  MuiLink: {
+    root: {
+      color: primary.light,
+      "&:visited": {
+        color: primary.main,
+      },
+    },
+    underlineHover: {
+      textDecoration: "none",
+      "&:hover": {
+        textDecoration: "underline",
+      },
+    },
+  },
+  MuiAppBar: {
+    root: {
+      backgroundColor: "#f1f1f1",
+    },
+  },
+};
+
+export default theme;
