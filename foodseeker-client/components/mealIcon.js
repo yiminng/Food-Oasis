@@ -1,6 +1,6 @@
 import theme from 'theme';
 
-const MealIcon = ({ fill = theme.palette.text }) => {
+const MealIcon = ({ fill = theme.palette.primary.contrastText }) => {
   return (
     <svg
     width="9"

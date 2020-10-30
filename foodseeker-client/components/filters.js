@@ -5,7 +5,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import PantryIcon from 'components/pantryIcon';
 import MealIcon from 'components/mealIcon';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(({ palette, breakpoints }) => ({
   select: {
     color: "white",
   },
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#000",
   },
   controlPanel: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: palette.primary.main,
     padding: "1rem 0",
     flex: "1 0 auto",
   },
@@ -29,27 +29,30 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     height: "40px",
     minWidth: "25px",
-    backgroundColor: "#BCE76D",
+    backgroundColor: palette.tertiary.main,
     borderRadius: "0 6px 6px 0",
     boxShadow: "none",
     "& .MuiButton-startIcon": {
       marginRight: 0,
     },
     "&.Mui-disabled": {
-      backgroundColor: "#BCE76D",
+      backgroundColor: palette.tertiary.main,
       opacity: 0.8,
     },
     "&:hover": {
-      backgroundColor: "#C7F573",
+      backgroundColor: palette.tertiary.light,
       boxShadow: "none",
     },
-    [theme.breakpoints.down("xs")]: {
+    [breakpoints.down("xs")]: {
       marginRight: ".5rem",
     },
   },
+  categoryButton: {
+    color: palette.primary.contrastText,
+  },
   buttonHolder: {
     display: "flex",
-    [theme.breakpoints.down("xs")]: {
+    [breakpoints.down("xs")]: {
       marginTop: "0.5rem",
     },
   },
@@ -76,13 +79,13 @@ const Filters = () => {
         className={classes.buttonHolder}
       >
         <Grid item>
-          <Button>
+          <Button className={classes.categoryButton}>
             <PantryIcon />
             Pantries
           </Button>
         </Grid>
         <Grid item>
-          <Button>
+          <Button className={classes.categoryButton}>
             <MealIcon />
             Meals
           </Button>
@@ -93,6 +96,11 @@ const Filters = () => {
           noValidate
           style={{ all: "inherit" }}
         >
+          {/* <Search
+            userCoordinates={userCoordinates}
+            setOrigin={setOrigin}
+            origin={origin}
+          /> */}
           <Button
             type="submit"
             variant="contained"
