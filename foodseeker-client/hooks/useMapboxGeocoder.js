@@ -2,11 +2,9 @@ import { useReducer } from "react";
 import axios from "axios";
 import debounce from "debounce-fn";
 
-const baseUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places`;
+import defaultLocations from 'constants/location';
 
-const losAngelesCountyLatLong = "-118.9517,33.6988,-117.6462,34.8233";
-const californiaLatLong = "-124.389, 32.4796, -114.1723, 42.072";
-const hawaiiLatLong = "-160.25, 18.91, -154.58, 22.30";
+const baseUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places`;
 
 const initialState = {
   isLoading: false,
@@ -39,6 +37,9 @@ function reducer(state = initialState, action) {
   }
 }
 
+const buildBounds = (bounds) => 
+  `${bounds.minLon}, ${bounds.minLat}, ${bounds.maxLon}, ${bounds.maxLat}`;
+
 export function useMapboxGeocoder() {
   const [{ isLoading, error, mapboxResults }, dispatch] = useReducer(
     reducer,
@@ -50,11 +51,12 @@ export function useMapboxGeocoder() {
   const fetchMapboxResults = debounce(
     async (searchString) => {
       const bbox =
-        tenantId === 1
-          ? losAngelesCountyLatLong
+        tenantId === 3
+          ? buildBounds(defaultLocations.hawaii.bounds)
           : tenantId === 2
-          ? californiaLatLong
-          : hawaiiLatLong;
+          ? buildBounds(defaultLocations.california.bounds)
+          : buildBounds(defaultLocations.losAngeles.bounds);
+
       const mapboxUrl = `${baseUrl}/${searchString}.json?bbox=${bbox}&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`;
 
       dispatch({ type: actionTypes.FETCH_REQUEST });

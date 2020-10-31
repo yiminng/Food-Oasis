@@ -4,10 +4,10 @@ import { MenuItem, TextField, Paper } from "@material-ui/core";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import { makeStyles } from "@material-ui/core/styles";
 import { useMapboxGeocoder } from "hooks/useMapboxGeocoder";
+import { useGeolocation } from "hooks/location";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    // width: "34.5em",
     position: "absolute",
     top: "35px",
     left: 0,
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 1,
   },
   container: {
-    width: "100%",
+    width: '100%',
     [theme.breakpoints.down("xs")]: {
       marginLeft: ".5rem",
     },
@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
   address: {
     backgroundColor: "#fff",
     borderRadius: "4px 0 0 4px",
-    cornerRadius: "6px",
     height: 40,
     "& .MuiInputLabel-outlined": {
       transform: "translate(14px, 14px) scale(1)",
@@ -38,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
       borderColor: "white",
       borderRight: "none",
+    },
+    [theme.breakpoints.up("md")]: {
+      width: '27rem',
     },
   },
   input: {
@@ -47,26 +49,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Search({ userCoordinates, setOrigin, origin }) {
+export default function Search({ setOrigin, origin }) {
   const classes = useStyles();
-  const [selectedPlace, setSelectedPlace] = useState("");
-  const [newInputValue, updateNewInputValue] = useState(origin?.locationName);
 
+  const geolocation = useGeolocation();
   const { mapboxResults, fetchMapboxResults } = useMapboxGeocoder();
-
-  const initialWidth = window.innerWidth > 960 ? true : false;
-  const [isWindow960orLess, switchAddressWidth] = useState(initialWidth);
-  useEffect(() => {
-    const changeAddressWidth = () => {
-      window.innerWidth > 960
-        ? switchAddressWidth(true)
-        : switchAddressWidth(false);
-    };
-
-    window.addEventListener("resize", changeAddressWidth);
-
-    return () => window.removeEventListener("resize", changeAddressWidth);
-  });
+  const [selectedPlace, setSelectedPlace] = useState('');
+  const [newInputValue, updateNewInputValue] = useState(origin?.locationName);
 
   const handleInputChange = (event) => {
     setSelectedPlace(event.target.value);
@@ -80,120 +69,45 @@ export default function Search({ userCoordinates, setOrigin, origin }) {
     const result = mapboxResults.find(
       (item) => item.place_name === selectedResult
     );
+    console.log(result);
     if (result) {
       const [long, lat] = result.center;
-      const itemCoordinates = {
-        latitude: lat,
-        longitude: long,
-      };
       setOrigin({
-        ...itemCoordinates,
+        lat,
+        lon: long,
+        // TODO: maybe replace place_name with text
         locationName: result.place_name,
       });
     }
-  };
-
-  const renderInput = ({ InputProps, classes }) => {
-    return (
-      <TextField
-        className={classes.address}
-        variant="outlined"
-        margin="none"
-        fullWidth
-        placeholder="Search by address or zip code"
-        name="address"
-        size="small"
-        autoFocus={false}
-        InputProps={{
-          classes: {
-            input: classes.input,
-          },
-          ...InputProps,
-        }}
-        style={{ width: isWindow960orLess ? "27rem" : "100%" }}
-      />
-    );
-  };
-
-  const renderSuggestion = (params) => {
-    const { item, index, itemProps, highlightedIndex, selectedItem } = params;
-    if (!item) return;
-    const isHighlighted = highlightedIndex === index;
-    const isSelected = selectedItem && selectedItem.indexOf(item.name) > -1;
-
-    return (
-      !isSelected && (
-        <MenuItem
-          {...itemProps}
-          key={item.id}
-          selected={isHighlighted}
-          component="div"
-        >
-          {item.place_name}
-        </MenuItem>
-      )
-    );
-  };
-
-  const renderResults = ({
-    highlightedIndex,
-    selectedItem,
-    inputValue,
-    mapboxResults,
-    getItemProps,
-  }) => {
-    if (!inputValue && userCoordinates && userCoordinates.latitude) {
-      return (
-        <MenuItem
-          component="div"
-          onClick={() => {
-            setOrigin({ ...userCoordinates, locationName: "Current Location" });
-            handleDownshiftOnChange("Current Location");
-          }}
-        >
-          <LocationOnIcon /> Current Location
-        </MenuItem>
-      );
-    }
-
-    return (
-      mapboxResults.length > 0 &&
-      mapboxResults.slice(0, 10).map((item, index) => {
-        return renderSuggestion({
-          item,
-          index,
-          itemProps: getItemProps({
-            item: item.place_name,
-          }),
-          highlightedIndex,
-          selectedItem,
-          inputValue,
-        });
-      })
-    );
   };
 
   return (
     <>
       <Downshift
         onChange={handleDownshiftOnChange}
-        itemToString={(item) => {
-          return item ? item.place_name : "";
-        }}
+        itemToString={item => item ? item.place_name : ''}
       >
         {({
           getInputProps,
           getItemProps,
           inputValue,
-          selectedItem,
-          highlightedIndex,
           toggleMenu,
           isOpen,
         }) => (
           <div className={classes.container}>
-            {renderInput({
-              classes,
-              InputProps: {
+            <TextField
+              className={classes.address}
+              variant="outlined"
+              margin="none"
+              fullWidth
+              placeholder="Search by address or zip code"
+              name="address"
+              size="small"
+              autoFocus={false}
+              InputProps={{
+                classes: {
+                  input: classes.input,
+                },
                 ...getInputProps({
                   onClick: () => {
                     setSelectedPlace("");
@@ -206,18 +120,33 @@ export default function Search({ userCoordinates, setOrigin, origin }) {
                       ? newInputValue
                       : inputValue || selectedPlace,
                 }),
-              },
-            })}
-
+              }}
+            />
             {isOpen && (
               <Paper className={classes.paper} square>
-                {renderResults({
-                  highlightedIndex,
-                  selectedItem,
-                  inputValue,
-                  mapboxResults,
-                  getItemProps,
-                })}
+                {!mapboxResults.length && geolocation && geolocation.lat && (
+                  <MenuItem
+                    component="div"
+                    onClick={() => {
+                      setOrigin({ ...geolocation, locationName: "Current Location" });
+                      handleDownshiftOnChange("Current Location");
+                    }}
+                  >
+                    <LocationOnIcon /> Current Location
+                  </MenuItem>
+                )}
+                {mapboxResults.length > 0 &&
+                  mapboxResults.slice(0, 10).map(item => 
+                    <MenuItem
+                      {...getItemProps({
+                        item: item.place_name,
+                      })}
+                      key={item.id}
+                      component="div"
+                    >
+                      {item.place_name}
+                    </MenuItem>
+                  )}
               </Paper>
             )}
           </div>

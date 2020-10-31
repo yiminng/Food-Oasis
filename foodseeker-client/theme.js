@@ -7,23 +7,23 @@ const theme = createMuiTheme({
       light: "#1976d2",
       main: "#336699",
       dark: "#0A3865",
-      contrastText: "#ffffff",
+      contrast: "#ffffff",
     },
     secondary: {
       // orange
       main: "#f9c058",
-      contrastText: "#000000",
+      contrast: "#000000",
     },
     tertiary: {
       // green
       light: '#C7F573',
       main: '#BCE76D',
-      contrastText: '#fff',
+      contrast: '#fff',
     },
     error: {
       // red
       main: "#f94040",
-      contrastText: "#000000",
+      contrast: "#000000",
     },
     text: {
       primary: "#313233",
@@ -42,7 +42,7 @@ theme.overrides = {
       border: `2px solid ${primary.main}`,
       color: primary.main,
       "&:hover": {
-        color: primary.contrastText,
+        color: primary.contrast,
         backgroundColor: primary.main,
       },
     },

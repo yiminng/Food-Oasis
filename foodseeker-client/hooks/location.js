@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import defaultLocations from 'constants/location';
+
 export const useGeolocation = () => {
   const [userCoordinates, setUserCoordinates] = useState();
 
@@ -10,7 +12,7 @@ export const useGeolocation = () => {
           if (position) {
             const userCoordinates = {
               lat: position.coords.latitude,
-              lng: position.coords.longitude,
+              lon: position.coords.longitude,
             };
             setUserCoordinates(userCoordinates);
           }
@@ -32,10 +34,10 @@ export const useGeolocation = () => {
 export const useDefaultLocation = () => {
   switch (process.env.NEXT_PUBLIC_TENANT_ID) {
     case 3:
-      return { lat: 21.33629, lng: -157.89435 };
+      return defaultLocations.hawaii;
     case 2:
-      return { lat: 38.576711, lng: -121.493671 };
+      return defaultLocations.california;
     default:
-      return { lat: 34.07872, lng: -118.243328 };
+      return defaultLocations.losAngeles;
   }
 };

@@ -1,6 +1,6 @@
 import theme from 'theme';
 
-const PantryIcon = ({ fill = theme.palette.primary.contrastText }) => {
+const PantryIcon = ({ fill = theme.palette.primary.contrast }) => {
   return (
     <svg
     width="20"
