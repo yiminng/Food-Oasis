@@ -7,12 +7,17 @@ import Header from 'components/header';
 
 const useStyles = makeStyles((theme) => ({
   listMapContainer: {
-    [theme.breakpoints.down("sm")]: {
-      height: "100%",
-    },
-    [theme.breakpoints.up("md")]: {
-      height: "79%",
-    },
+    height: 'calc(100vh - 62px - 70px)',
+    overflow: 'hidden',
+    // [theme.breakpoints.down("sm")]: {
+    //   height: "100%",
+    // },
+    // [theme.breakpoints.up("md")]: {
+    //   height: "79%",
+    // },
+  },
+  grid: {
+    overflow: 'hidden',
   },
 }));
 
@@ -26,6 +31,7 @@ export default function Layout({ origin, setOrigin, children }) {
       wrap="nowrap"
       alignContent="stretch"
       spacing={0}
+      className={classes.grid}
     >
       <Head />
       <Header />

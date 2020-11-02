@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic'
 
-// import List from 'components/list';
+import List from 'components/list';
 import { useDefaultLocation } from 'hooks/location';
 import useMobile from 'hooks/useMobile';
 import Layout from 'components/layout'
@@ -15,7 +15,6 @@ const MapNoSSR = dynamic(
 
 export default function Index({ defaultLocation, stakeholders }) {
   const isMobile = useMobile();
-  const { categoryIds, toggleCategory } = useCategoryIds([]);
 
   const [isMapView, setIsMapView] = useState(true);
   const [origin, setOrigin] = useState({
@@ -47,20 +46,19 @@ export default function Index({ defaultLocation, stakeholders }) {
 
   return (
     <Layout origin={origin} setOrigin={setOrigin}>
+      <List stakeholders={stakeholders} />
       {(!isMobile || (isMobile && isMapView)) && (
         <MapNoSSR
           origin={origin}
           setOrigin={origin}
           stakeholders={stakeholders}
-          categoryIds={categoryIds}
-          // setToast={setToast}
         />
       )}
     </Layout>
   );
 };
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps() {
   const defaultLocation = useDefaultLocation();
   const url = `https://foodoasis.la/api/stakeholderbests?categoryIds[]=1&categoryIds[]=9&latitude=${defaultLocation.center.lat}&longitude=${defaultLocation.center.lon}&distance=${defaultLocation.radius}&isInactive=either&verificationStatusId=0&tenantId=${process.env.NEXT_PUBLIC_TENANT_ID}`
   const res = await fetch(url)

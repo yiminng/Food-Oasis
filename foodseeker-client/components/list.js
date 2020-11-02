@@ -1,10 +1,8 @@
 import { useRef, useState, useEffect } from "react";
-import StakeholderDetails from "components/Stakeholder/StakeholderDetails";
+// import StakeholderDetails from "components/Stakeholder/StakeholderDetails";
 import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import StakeholderPreview from "components/Stakeholder/StakeholderPreview";
-
-import { isMobile } from "helpers";
+import StakeholderPreview from "components/stakeholder/preview";
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -36,10 +34,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ResultsList = ({
-  doSelectStakeholder,
-  selectedStakeholder,
   stakeholders,
-  setToast,
 }) => {
   const classes = useStyles();
   const listRef = useRef();
@@ -51,32 +46,31 @@ const ResultsList = ({
     itemsRef.current = itemsRef.current.slice(0, stakeholders.length);
   }, [stakeholders]);
 
-  const mobileView = isMobile();
 
   const selectStakeholder = (stakeholder) => {
-    doSelectStakeholder(stakeholder);
-    if (stakeholder && mobileView) {
-      const index = stakeholders.findIndex((s) => s.id === stakeholder.id);
-      const currentRef = itemsRef.current[index];
-      setPosition(currentRef.offsetTop);
-      listRef.current.scrollTo(0, 0);
-    }
-    if (!stakeholder && mobileView) {
-      window.scrollTo(0, 0);
-      listRef.current.scrollTo(0, position);
-    }
+    // doSelectStakeholder(stakeholder);
+    // if (stakeholder && mobileView) {
+    //   const index = stakeholders.findIndex((s) => s.id === stakeholder.id);
+    //   const currentRef = itemsRef.current[index];
+    //   setPosition(currentRef.offsetTop);
+    //   listRef.current.scrollTo(0, 0);
+    // }
+    // if (!stakeholder && mobileView) {
+    //   window.scrollTo(0, 0);
+    //   listRef.current.scrollTo(0, position);
+    // }
   };
 
   return (
     <Grid item xs={12} md={4} className={classes.list} ref={listRef}>
-      {stakeholders && selectedStakeholder && !selectedStakeholder.inactive ? (
+      {/* {stakeholders && selectedStakeholder && !selectedStakeholder.inactive ? (
         <StakeholderDetails
           doSelectStakeholder={selectStakeholder}
           selectedStakeholder={selectedStakeholder}
           setToast={setToast}
         />
-      ) : (
-        stakeholders.map((stakeholder, i) => (
+      ) : ( */}
+        {stakeholders.map((stakeholder, i) => (
           <div
             key={stakeholder.id}
             className={classes.preview}
@@ -87,8 +81,8 @@ const ResultsList = ({
               doSelectStakeholder={selectStakeholder}
             />
           </div>
-        ))
-      )}
+        ))}
+      {/* )} */}
     </Grid>
   );
 };
