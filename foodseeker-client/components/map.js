@@ -1,18 +1,21 @@
-import React, { useEffect, useState, useRef } from 'react'
-import ReactMapGL, { NavigationControl } from 'react-map-gl'
-import { Grid } from "@material-ui/core";
+import { useEffect, useState, useRef } from 'react'
+import ReactMapGL, { Marker, NavigationControl } from 'react-map-gl'
 import clsx from 'clsx'
 import { makeStyles } from "@material-ui/core/styles";
-import Image from 'next/image'
 
-import theme from 'theme'
+import {
+  MEAL_PROGRAM_CATEGORY_ID,
+  FOOD_PANTRY_CATEGORY_ID,
+} from 'constants/stakeholder';
 import { useDefaultLocation } from 'hooks/location'
+import MapIcon from 'icons/map'
 
 const useStyles = makeStyles((theme) => ({
   control: {
     position: 'absolute',
     right: '5px',
     top: '5px',
+    zIndex: 2,
   },
   container: {
     display: 'grid',
@@ -29,7 +32,41 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Map({ origin, setOrigin }) {
+const MapMarker = ({ onClick, stakeholder, selectedStakeholder }) => {
+  const {
+    longitude,
+    latitude,
+    categories,
+    inactive,
+    inactiveTemporary,
+  } = stakeholder;
+  const classes = useStyles();
+  const selected =
+    selectedStakeholder && selectedStakeholder.id === stakeholder.id;
+
+  return (
+    <Marker
+      longitude={longitude}
+      latitude={latitude}
+      className={clsx({ [classes.zIndex]: selected })}
+    >
+      <MapIcon
+        selected={selected}
+        inactive={inactive || inactiveTemporary}
+        category={
+            categories[0]?.id === FOOD_PANTRY_CATEGORY_ID &&
+            categories[1]?.id === MEAL_PROGRAM_CATEGORY_ID
+            ? -1
+            : categories[0]?.id === FOOD_PANTRY_CATEGORY_ID
+            ? 0
+            : 1
+          }
+        />
+    </Marker>
+  );
+};
+
+export default function Map({ origin, setOrigin, stakeholders }) {
   const mapRef = useRef()
   const defaultLocation = useDefaultLocation()
 
@@ -61,9 +98,9 @@ export default function Map({ origin, setOrigin }) {
     if (map) map.on('load', () => setShowMap(true))
   })
 
-  const width = window.innerWidth / 2
-  const height = window.innerHeight - 72-60
-  const STATIC_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-118.2439,34.0355,12,0/562x920?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
+  const width = Math.round(window.innerWidth / 2)
+  const height = Math.round(window.innerHeight - 72 - 60)
+  const STATIC_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${viewport.longitude},${viewport.latitude},${viewport.zoom},0/${width}x${height}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
 
   return (
     <div className={classes.container}>
@@ -80,6 +117,7 @@ export default function Map({ origin, setOrigin }) {
           <div className={classes.control}>
             <NavigationControl showCompass={false} />
           </div>
+          {stakeholders.filter(s => !s.inactive && !s.inactiveTemporary).map(s => <MapMarker key={s.id} stakeholder={s} />)}
         </ReactMapGL>
       </div>
       <div className={clsx(classes.map, { [classes.hidden]: showMap })}>

@@ -1,25 +1,11 @@
 import { useState } from 'react';
-import { Grid } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import dynamic from 'next/dynamic'
 
-import Head from 'components/head';
-import Filters from 'components/filters';
 // import List from 'components/list';
-import Header from 'components/header';
 import { useDefaultLocation } from 'hooks/location';
 import useMobile from 'hooks/useMobile';
-
-const useStyles = makeStyles((theme) => ({
-  listMapContainer: {
-    [theme.breakpoints.down("sm")]: {
-      height: "100%",
-    },
-    [theme.breakpoints.up("md")]: {
-      height: "79%",
-    },
-  },
-}));
+import Layout from 'components/layout'
+import useCategoryIds from 'hooks/useCategoryIds'
 
 // Map need access to the window so has to load client-side
 const MapNoSSR = dynamic(
@@ -27,11 +13,10 @@ const MapNoSSR = dynamic(
   { ssr: false }
 )
 
-export default function Index() {
-  const classes = useStyles();
-  const defaultLocation = useDefaultLocation();
-
+export default function Index({ defaultLocation, stakeholders }) {
   const isMobile = useMobile();
+  const { categoryIds, toggleCategory } = useCategoryIds([]);
+
   const [isMapView, setIsMapView] = useState(true);
   const [origin, setOrigin] = useState({
     lat: defaultLocation.center.lat,
@@ -61,34 +46,29 @@ export default function Index() {
   };
 
   return (
-    <Grid
-      container
-      direction="column"
-      wrap="nowrap"
-      alignContent="stretch"
-      spacing={0}
-    >
-      <Head />
-      <Header />
-      <Filters origin={origin} setOrigin={setOrigin} />
-      <Grid item container spacing={0} className={classes.listMapContainer}>
-        {/* {(!isMobile || (isMobile && !isMapView)) && (
-          <List
-            selectedStakeholder={selectedStakeholder}
-            doSelectStakeholder={doSelectStakeholder}
-            stakeholders={[]}
-            setToast={setToast}
-          />
-        )} */}
-        {(!isMobile || (isMobile && isMapView)) && (
-          <MapNoSSR
-            origin={origin}
-            setOrigin={origin}
-            // categoryIds={categoryIds}
-            // setToast={setToast}
-          />
-        )}
-      </Grid>
-    </Grid>
+    <Layout origin={origin} setOrigin={setOrigin}>
+      {(!isMobile || (isMobile && isMapView)) && (
+        <MapNoSSR
+          origin={origin}
+          setOrigin={origin}
+          stakeholders={stakeholders}
+          categoryIds={categoryIds}
+          // setToast={setToast}
+        />
+      )}
+    </Layout>
   );
 };
+
+export async function getServerSideProps(context) {
+  const defaultLocation = useDefaultLocation();
+  const url = `https://foodoasis.la/api/stakeholderbests?categoryIds[]=1&categoryIds[]=9&latitude=${defaultLocation.center.lat}&longitude=${defaultLocation.center.lon}&distance=${defaultLocation.radius}&isInactive=either&verificationStatusId=0&tenantId=${process.env.NEXT_PUBLIC_TENANT_ID}`
+  const res = await fetch(url)
+  const stakeholders = await res.json()
+  return {
+    props: {
+      defaultLocation,
+      stakeholders,
+    },
+  }
+}

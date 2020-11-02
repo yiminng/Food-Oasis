@@ -11,8 +11,9 @@ const theme = createMuiTheme({
     },
     secondary: {
       // orange
-      main: "#f9c058",
-      contrast: "#000000",
+      light: "#f9c058",
+      main: "#E57109",
+      contrast: "#fff",
     },
     tertiary: {
       // green
@@ -28,6 +29,10 @@ const theme = createMuiTheme({
     text: {
       primary: "#313233",
     },
+    inactive: {
+      // grey
+      main: '#545454',
+    }
   },
   typography: {
     fontFamily: '"Helvetica Neue", Helvetica, sans-serif;',

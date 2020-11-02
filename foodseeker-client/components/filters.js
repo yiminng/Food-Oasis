@@ -3,8 +3,8 @@ import { Grid, Button, Box } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import LocationSearchingIcon from "@material-ui/icons/LocationSearching";
 
-import PantryIcon from 'components/pantryIcon';
-import MealIcon from 'components/mealIcon';
+import PantryIcon from 'icons/pantryIcon';
+import MealIcon from 'icons/mealIcon';
 import Search from 'components/search';
 import { useGeolocation } from "hooks/location";
 

@@ -22,7 +22,7 @@ const reducer = (state, { type, value, initialState }) => {
   }
 };
 
-const useCategoryIds = (initialState) => {
+export default (initialState) => {
   const [categoryIds, dispatch] = useReducer(reducer, initialState);
 
   const addCategory = useCallback(
@@ -55,5 +55,3 @@ const useCategoryIds = (initialState) => {
     toggleCategory,
   };
 };
-
-export default useCategoryIds;
