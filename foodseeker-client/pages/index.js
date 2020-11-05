@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic'
+import { Grid } from "@material-ui/core";
 
 import List from 'components/list';
 import { useDefaultLocation } from 'hooks/location';
@@ -46,14 +47,18 @@ export default function Index({ defaultLocation, stakeholders }) {
 
   return (
     <Layout origin={origin} setOrigin={setOrigin}>
-      <List stakeholders={stakeholders} />
-      {(!isMobile || (isMobile && isMapView)) && (
-        <MapNoSSR
-          origin={origin}
-          setOrigin={origin}
-          stakeholders={stakeholders}
-        />
-      )}
+      <Grid item xs={12} md={4}>
+        <List stakeholders={stakeholders} />
+      </Grid>
+      <Grid item xs={12} md={8}>
+        {(!isMobile || (isMobile && isMapView)) && (
+          <MapNoSSR
+            origin={origin}
+            setOrigin={origin}
+            stakeholders={stakeholders}
+          />
+        )}
+      </Grid>
     </Layout>
   );
 };

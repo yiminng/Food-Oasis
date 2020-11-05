@@ -16,8 +16,8 @@ const defaultLocations = {
   losAngeles: {
     name: 'Los Angeles',
     center: { lat: 34.0354899, lon: -118.2439235 },
-    zoom: 12,
-    radius: 5,
+    zoom: 12.5,
+    radius: 4,
     bounds: { maxLat: 34.8233, maxLon: -117.6462, minLat: 33.6988, minLon: -118.9517 },
   },
 }
