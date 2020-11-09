@@ -1,12 +1,17 @@
 import { makeStyles } from "@material-ui/core/styles";
+import dynamic from 'next/dynamic'
 import { Grid, Button, Box } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import LocationSearchingIcon from "@material-ui/icons/LocationSearching";
 
 import PantryIcon from 'icons/pantryIcon';
 import MealIcon from 'icons/mealIcon';
-import Search from 'components/search';
 import { useGeolocation } from "hooks/location";
+
+const SearchNoSSR = dynamic(
+  () => import('components/search'),
+  { ssr: false }
+)
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
   select: {
@@ -129,7 +134,7 @@ const Filters = ({ origin, setOrigin }) => {
           noValidate
           style={{ all: "inherit" }}
         >
-          <Search
+          <SearchNoSSR
             setOrigin={setOrigin}
             origin={origin}
           />

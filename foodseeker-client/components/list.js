@@ -1,37 +1,35 @@
-import { useRef, useState, useEffect } from "react";
 import { FixedSizeList } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
 // import StakeholderDetails from "components/Stakeholder/StakeholderDetails";
-import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import StakeholderPreview from "components/stakeholder/preview";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(({ palette }) => ({
   preview: {
     padding: '0 1em',
-    borderBottom: " .2em solid #f1f1f1",
+    borderBottom: `0.2em solid ${palette.inactive.light}`,
   },
 }));
 
 const Row = ({ index, style, data }) => {
   const classes = useStyles();
+  const { stakeholders, onSelectStakeholder } = data
+  const stakeholder = stakeholders[index]
   return (
     <div
       className={classes.preview}
       style={style}
     >
       <StakeholderPreview
-        stakeholder={data[index]}
-        doSelectStakeholder={() => {}}
+        stakeholder={stakeholder}
+        onSelectStakeholder={onSelectStakeholder}
       />
     </div>
   );
 }
 
-const List = ({
-  stakeholders,
-}) => {
+const List = ({ stakeholders, onSelectStakeholder }) => {
   return (
     <AutoSizer>
       {({ height, width }) => (
@@ -40,7 +38,10 @@ const List = ({
           itemCount={stakeholders.length}
           itemSize={150}
           width={width}
-          itemData={stakeholders}
+          itemData={{
+            stakeholders,
+            onSelectStakeholder
+          }}
         >
           {Row}
         </FixedSizeList>

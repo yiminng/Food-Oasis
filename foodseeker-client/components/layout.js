@@ -5,16 +5,13 @@ import Head from 'components/head';
 import Filters from 'components/filters';
 import Header from 'components/header';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(({ breakpoints }) => ({
   listMapContainer: {
     height: 'calc(100vh - 62px - 70px)',
     overflow: 'hidden',
-    // [theme.breakpoints.down("sm")]: {
-    //   height: "100%",
-    // },
-    // [theme.breakpoints.up("md")]: {
-    //   height: "79%",
-    // },
+    [breakpoints.down('sm')]: {
+      height: 'calc(100vh - 175px)',
+    },
   },
   grid: {
     overflow: 'hidden',

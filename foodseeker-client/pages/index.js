@@ -1,44 +1,70 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic'
 import { Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import clsx from 'clsx'
 
 import List from 'components/list';
+import Details from 'components/stakeholder/details';
 import { useDefaultLocation } from 'hooks/location';
-import useMobile from 'hooks/useMobile';
 import Layout from 'components/layout'
-import useCategoryIds from 'hooks/useCategoryIds'
-
 // Map need access to the window so has to load client-side
 const MapNoSSR = dynamic(
   () => import('components/map'),
   { ssr: false }
 )
 
+const useStyles = makeStyles(({ breakpoints }) => ({
+  gridItem: {
+    height: '100%',
+    [breakpoints.down('sm')]: {
+      height: '50%',
+      width: '100%',
+    }
+  },
+  list: {
+    order: 0,
+    [breakpoints.down('sm')]: {
+      order: 1,
+    }
+  },
+  map: {
+    order: 1,
+    [breakpoints.down('sm')]: {
+      order: 0,
+    }
+  },
+}));
+
 export default function Index({ defaultLocation, stakeholders }) {
-  const isMobile = useMobile();
+  const classes = useStyles();
 
   const [isMapView, setIsMapView] = useState(true);
   const [origin, setOrigin] = useState({
     lat: defaultLocation.center.lat,
     lon: defaultLocation.center.lon,
   });
-  const [selectedStakeholder, onSelectStakeholder] = useState(null);
-  // const [viewport, setViewport] = useState({
-  //   zoom: defaultLocation.zoom,
-  //   latitude: origin.lat,
-  //   longitude: origin.lon,
-  // });
+  const [selectedStakeholder, selectStakeholder] = useState(null);
+  const [viewport, setViewport] = useState({
+    latitude: origin.lat,
+    longitude: origin.lon,
+    zoom: defaultLocation.zoom,
+    height: '100%',
+    width: '100%',
+  })
 
-  // const doSelectStakeholder = (stakeholder) => {
-  //   if (stakeholder && !isMobile) {
-  //     setViewport({
-  //       ...viewport,
-  //       latitude: stakeholder.latitude,
-  //       longitude: stakeholder.longitude,
-  //     });
-  //   }
-  //   onSelectStakeholder(stakeholder);
-  // }
+
+
+  const onSelectStakeholder = (stakeholder) => {
+    if (stakeholder) {
+      setViewport({
+        ...viewport,
+        latitude: stakeholder.latitude,
+        longitude: stakeholder.longitude,
+      });
+    }
+    selectStakeholder(stakeholder);
+  }
 
   const switchResultsView = () => {
     doSelectStakeholder();
@@ -47,17 +73,25 @@ export default function Index({ defaultLocation, stakeholders }) {
 
   return (
     <Layout origin={origin} setOrigin={setOrigin}>
-      <Grid item xs={12} md={4}>
-        <List stakeholders={stakeholders} />
-      </Grid>
-      <Grid item xs={12} md={8}>
-        {(!isMobile || (isMobile && isMapView)) && (
-          <MapNoSSR
-            origin={origin}
-            setOrigin={origin}
+      <Grid item sm={12} md={4} className={clsx(classes.list, classes.gridItem)}>
+        {!selectedStakeholder &&
+          <List
             stakeholders={stakeholders}
+            onSelectStakeholder={onSelectStakeholder}
           />
-        )}
+        }
+        {!!selectedStakeholder &&
+          <Details stakeholder={selectedStakeholder} onSelectStakeholder={onSelectStakeholder} />
+        }
+      </Grid>
+      <Grid item sm={12} md={8} className={clsx(classes.map, classes.gridItem)}>
+        <MapNoSSR
+          viewport={viewport}
+          setViewport={setViewport}
+          stakeholders={stakeholders}
+          selectedStakeholder={selectedStakeholder}
+          onSelectStakeholder={onSelectStakeholder}
+        />
       </Grid>
     </Layout>
   );

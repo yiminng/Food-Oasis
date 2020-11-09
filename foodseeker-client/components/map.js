@@ -8,7 +8,6 @@ import {
   MEAL_PROGRAM_CATEGORY_ID,
   FOOD_PANTRY_CATEGORY_ID,
 } from 'constants/stakeholder';
-import { useDefaultLocation } from 'hooks/location'
 import MapIcon from 'icons/map'
 
 const useStyles = makeStyles((theme) => ({
@@ -16,20 +15,12 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     right: '5px',
     top: '5px',
-    zIndex: 2,
-  },
-  container: {
-    display: 'grid',
   },
   zIndex: {
     zIndex: 1,
   },
-  map: {
-    gridColumn: 1,
-    gridRow: 1,
-  },
-  hidden: {
-    visibility: 'hidden',
+  marker: {
+    cursor: 'pointer !important',
   },
   searchButton: {
     position: "absolute",
@@ -38,11 +29,14 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     margin: "auto",
     backgroundColor: theme.palette.primary.contrast,
-    zIndex: 2,
   },
 }));
 
-const MapMarker = ({ onClick, stakeholder, selectedStakeholder }) => {
+const MapMarker = ({
+  onSelectStakeholder,
+  stakeholder,
+  selected,
+}) => {
   const {
     longitude,
     latitude,
@@ -51,16 +45,18 @@ const MapMarker = ({ onClick, stakeholder, selectedStakeholder }) => {
     inactiveTemporary,
   } = stakeholder;
   const classes = useStyles();
-  const selected =
-    selectedStakeholder && selectedStakeholder.id === stakeholder.id;
 
   return (
     <Marker
       longitude={longitude}
       latitude={latitude}
-      className={clsx({ [classes.zIndex]: selected })}
+      className={clsx(classes.marker, { [classes.zIndex]: selected })}
     >
       <MapIcon
+        onClick={e => {
+          e.stopPropagation();
+          onSelectStakeholder(stakeholder)
+        }}
         selected={selected}
         inactive={inactive || inactiveTemporary}
         category={
@@ -76,19 +72,16 @@ const MapMarker = ({ onClick, stakeholder, selectedStakeholder }) => {
   );
 };
 
-export default function Map({ origin, setOrigin, stakeholders }) {
+export default function Map({
+  viewport,
+  setViewport,
+  stakeholders,
+  onSelectStakeholder,
+  selectedStakeholder
+}) {
   const mapRef = useRef()
-  const defaultLocation = useDefaultLocation()
 
   const classes = useStyles()
-  const [showMap, setShowMap] = useState(false)
-  const [viewport, setViewport] = useState({
-    latitude: origin.lat,
-    longitude: origin.lon,
-    zoom: defaultLocation.zoom,
-    height: '100%',
-    width: '100%',
-  })
   const [showSearchArea, setShowSearchArea] = useState(false);
 
   const onInteractionStateChange = (s) => {
@@ -133,47 +126,41 @@ export default function Map({ origin, setOrigin, stakeholders }) {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  useEffect(() => {
-    const map = mapRef.current.getMap()
-    if (map) map.on('load', () => setShowMap(true))
-  })
-
-  const width = Math.round(window.innerWidth * ( 2 / 3))
-  const height = Math.round(window.innerHeight - 72 - 60)
-  const STATIC_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${viewport.longitude},${viewport.latitude},${viewport.zoom},0/${width}x${height}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
-
   return (
-    <div className={classes.container} id="map">
-      <div className={clsx(classes.map, classes.zIndex, { [classes.hidden]: !showMap })}>
-        <ReactMapGL
-          {...viewport}
-          ref={mapRef}
-          mapboxApiAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-          mapStyle="mapbox://styles/mapbox/streets-v11?optimize=true"
-          onViewportChange={viewport => setViewport(viewport)}
-          maxZoom={18}
-          minZoom={8}
-          onInteractionStateChange={onInteractionStateChange}
+    <ReactMapGL
+      {...viewport}
+      ref={mapRef}
+      mapboxApiAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+      mapStyle="mapbox://styles/mapbox/streets-v11?optimize=true"
+      onViewportChange={viewport => setViewport(viewport)}
+      maxZoom={18}
+      minZoom={8}
+      onInteractionStateChange={onInteractionStateChange}
+      onClick={() => onSelectStakeholder(null)}
+    >
+      <div className={classes.control}>
+        <NavigationControl showCompass={false} />
+      </div>
+      {showSearchArea && (
+        <Button
+          onClick={searchArea}
+          variant="outlined"
+          size="small"
+          className={classes.searchButton}
         >
-          <div className={classes.control}>
-            <NavigationControl showCompass={false} />
-          </div>
-          {showSearchArea && (
-            <Button
-              onClick={searchArea}
-              variant="outlined"
-              size="small"
-              className={classes.searchButton}
-            >
-              Search this area
-            </Button>
-          )}
-          {stakeholders.filter(s => !s.inactive && !s.inactiveTemporary).map(s => <MapMarker key={s.id} stakeholder={s} />)}
-        </ReactMapGL>
-      </div>
-      <div className={clsx(classes.map, { [classes.hidden]: showMap })}>
-        <img src={STATIC_URL} width={width} height={height} alt={defaultLocation.name} />
-      </div>
-    </div>
+          Search this area
+        </Button>
+      )}
+      {stakeholders.filter(s => !s.inactive && !s.inactiveTemporary)
+        .map(s => 
+          <MapMarker
+            key={s.id}
+            stakeholder={s}
+            onSelectStakeholder={onSelectStakeholder}
+            selected={!!selectedStakeholder && selectedStakeholder.id === s.id}
+          />
+        )
+      }
+    </ReactMapGL>
   )
 }

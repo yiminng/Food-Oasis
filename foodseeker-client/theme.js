@@ -32,6 +32,7 @@ const theme = createMuiTheme({
     inactive: {
       // grey
       main: '#545454',
+      light: '#f1f1f1',
     }
   },
   typography: {

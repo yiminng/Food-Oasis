@@ -7,7 +7,7 @@ import {
   FOOD_PANTRY_CATEGORY_ID,
 } from "constants/stakeholder";
 import { ORGANIZATION_COLORS, CLOSED_COLOR } from "constants/map";
-import { getGoogleMapsUrl, extractNumbers } from "util";
+import { getGoogleMapsUrl, extractNumbers } from "util/index";
 
 // import Icon from "components/Icon";
 
@@ -133,10 +133,10 @@ const isAlmostClosed = (hours) => {
   return minutesToClosing <= minutesToCloseFlag;
 };
 
-const StakeholderPreview = ({ stakeholder, doSelectStakeholder }) => {
+const StakeholderPreview = ({ stakeholder, onSelectStakeholder, selected }) => {
   const classes = useStyles();
 
-  const mainNumber = '2' //extractNumbers(stakeholder.phone).find((n) => n.number);
+  const mainNumber = extractNumbers(stakeholder.phone).find((n) => n.number);
 
   const stakeholderHours = stakeholdersCurrentDaysHours(stakeholder);
   const isOpenFlag = !!stakeholderHours;
@@ -148,7 +148,7 @@ const StakeholderPreview = ({ stakeholder, doSelectStakeholder }) => {
     <div
       className={classes.stakeholder}
       key={stakeholder.id}
-      onClick={() => doSelectStakeholder(stakeholder)}
+      onClick={() => onSelectStakeholder(stakeholder)}
     >
       <div className={classes.leftInfo}>
         {/* <Icon stakeholder={stakeholder} height="50px" width="50px" /> */}
