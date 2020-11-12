@@ -3,7 +3,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 // import StakeholderDetails from "components/Stakeholder/StakeholderDetails";
 import { makeStyles } from "@material-ui/core/styles";
 
-import StakeholderPreview from "components/stakeholder/preview";
+import Preview from "components/stakeholder/preview";
 
 const useStyles = makeStyles(({ palette }) => ({
   preview: {
@@ -21,7 +21,7 @@ const Row = ({ index, style, data }) => {
       className={classes.preview}
       style={style}
     >
-      <StakeholderPreview
+      <Preview
         stakeholder={stakeholder}
         onSelectStakeholder={onSelectStakeholder}
       />

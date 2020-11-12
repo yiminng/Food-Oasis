@@ -10,7 +10,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     height: 'calc(100vh - 62px - 70px)',
     overflow: 'hidden',
     [breakpoints.down('sm')]: {
-      height: 'calc(100vh - 175px)',
+      height: 'calc(100vh - 162px)',
     },
   },
   grid: {

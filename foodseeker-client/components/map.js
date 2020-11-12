@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     right: '5px',
     top: '5px',
+    zIndex: 2,
   },
   zIndex: {
     zIndex: 1,
@@ -29,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     margin: "auto",
     backgroundColor: theme.palette.primary.contrast,
+    zIndex: 2,
   },
 }));
 

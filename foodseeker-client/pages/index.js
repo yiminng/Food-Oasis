@@ -53,8 +53,6 @@ export default function Index({ defaultLocation, stakeholders }) {
     width: '100%',
   })
 
-
-
   const onSelectStakeholder = (stakeholder) => {
     if (stakeholder) {
       setViewport({
