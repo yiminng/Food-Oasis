@@ -11,6 +11,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     overflow: 'hidden',
     [breakpoints.down('sm')]: {
       height: 'calc(100vh - 162px)',
+      overflowY: 'scroll',
     },
   },
   grid: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   },
 }));
 
-export default function Layout({ origin, setOrigin, children }) {
+export default function Layout({ origin, setOrigin, isMapView, setMapView, children }) {
   const classes = useStyles();
 
   return (
@@ -32,7 +33,7 @@ export default function Layout({ origin, setOrigin, children }) {
     >
       <Head />
       <Header />
-      <Filters origin={origin} setOrigin={setOrigin} />
+      <Filters origin={origin} setOrigin={setOrigin} isMapView={isMapView} setMapView={setMapView} />
       <Grid item container spacing={0} className={classes.listMapContainer}>
         {children}
       </Grid>

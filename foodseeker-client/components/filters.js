@@ -3,10 +3,13 @@ import dynamic from 'next/dynamic'
 import { Grid, Button, Box } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import LocationSearchingIcon from "@material-ui/icons/LocationSearching";
+import MapIcon from "@material-ui/icons/Map";
+import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
 
 import PantryIcon from 'icons/pantryIcon';
 import MealIcon from 'icons/mealIcon';
 import { useGeolocation } from "hooks/location";
+import useMobile from 'hooks/useMobile';
 
 const SearchNoSSR = dynamic(
   () => import('components/search'),
@@ -95,8 +98,30 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
   }
 }));
 
-const Filters = ({ origin, setOrigin }) => {
+const SwitchViewsButton = ({
+  isMapView,
+  onClick,
+  color = "primary",
+}) => (
+  <Button onClick={onClick} style={{ color }}>
+    {isMapView && (
+      <>
+        <FormatListBulletedIcon />
+        <span style={{ fontSize: "1rem", marginRight: ".5rem" }}>List</span>
+      </>
+    )}
+    {!isMapView && (
+      <>
+        <MapIcon />
+        <span style={{ fontSize: "1rem", marginRight: ".5rem" }}>Map</span>
+      </>
+    )}
+  </Button>
+)
+
+const Filters = ({ origin, setOrigin, isMapView, setMapView }) => {
   const classes = useStyles();
+  const isMobile = useMobile();
   const geolocation = useGeolocation();
 
   return (
@@ -127,6 +152,15 @@ const Filters = ({ origin, setOrigin }) => {
             <MealIcon />
             Meals
           </Button>
+        </Grid>
+        <Grid item>
+          {isMobile && (
+            <SwitchViewsButton
+              isMapView={isMapView}
+              onClick={() => setMapView(!isMapView)}
+              color="white"
+            />
+          )}
         </Grid>
       </Grid>
       <Box className={classes.inputContainer}>
