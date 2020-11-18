@@ -1,6 +1,9 @@
 import moment from "moment";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button } from "@material-ui/core";
+import DirectionsIcon from "@material-ui/icons/Directions";
+import CallIcon from "@material-ui/icons/Call";
+import InfoIcon from "@material-ui/icons/InfoOutlined";
+import ShareIcon from "@material-ui/icons/Share";
 
 import {
   MEAL_PROGRAM_CATEGORY_ID,
@@ -8,16 +11,17 @@ import {
 } from "constants/stakeholder";
 import { ORGANIZATION_COLORS, CLOSED_COLOR } from "constants/map";
 import { getGoogleMapsUrl, extractNumbers } from "util/index";
+import LabelButton from 'components/labelButton';
 
 // import Icon from "components/Icon";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ palette }) => ({
   stakeholder: {
     width: "100%",
+    height: '150px',
     minHeight: "6em",
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
     padding: "1em 0",
   },
   info: {
@@ -64,6 +68,7 @@ const useStyles = makeStyles(() => ({
     width: "100%",
     display: "flex",
     flexDirection: "row",
+    margin: '0 -5px',
     justifyContent: "space-between",
   },
   leftInfo: {
@@ -208,9 +213,7 @@ const StakeholderPreview = ({ stakeholder, onSelectStakeholder, selected }) => {
           ) : null}
         </div>
         <div className={classes.buttons}>
-          <Button
-            variant="outlined"
-            size="small"
+          <LabelButton
             onClick={() =>
               window.open(
                 getGoogleMapsUrl(
@@ -220,25 +223,24 @@ const StakeholderPreview = ({ stakeholder, onSelectStakeholder, selected }) => {
                 )
               )
             }
+            label="Directions"
           >
-            Directions
-          </Button>
+            <DirectionsIcon />
+          </LabelButton>
           {mainNumber && (
-            <Button
-              variant="outlined"
-              size="small"
+            <LabelButton
               onClick={() => window.open(`tel:${mainNumber.value}`)}
+              label="Call"
             >
-              Call
-            </Button>
+              <CallIcon />
+            </LabelButton>
           )}
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={stakeholder.inactive}
-          >
-            Details
-          </Button>
+          <LabelButton label="Details">
+            <InfoIcon />
+          </LabelButton>
+          <LabelButton label="Share">
+            <ShareIcon />
+          </LabelButton>
         </div>
       </div>
     </div>

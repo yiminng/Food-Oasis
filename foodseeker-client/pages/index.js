@@ -46,7 +46,6 @@ const useMobileStyles = makeStyles((props) => ({
   },
   preview: {
     width: '100%',
-    height: '150px',
     padding: '0 1em',
   },
   details: {

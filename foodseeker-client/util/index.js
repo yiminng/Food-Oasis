@@ -1,5 +1,5 @@
 export const getGoogleMapsUrl = (zip, address1, address2) => {
-  const baseUrl = `https://google.com/maps/place/`;
+  const baseUrl = `https://google.com/maps/dir/?api=1&destination=`;
 
   const address1urlArray = address1.split(" ");
   const address1url = address1urlArray.reduce(
@@ -13,7 +13,6 @@ export const getGoogleMapsUrl = (zip, address1, address2) => {
     );
     return `${baseUrl}${address1url},+${address2url},+${zip}`;
   }
-
   return `${baseUrl}${address1url},+${zip}`;
 };
 

@@ -6,6 +6,15 @@ import dayjs from 'dayjs';
 // import mapMarker from "images/mapMarker";
 // import fbIcon from "images/fbIcon.png";
 // import instaIcon from "images/instaIcon.png";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import InstagramIcon from "@material-ui/icons/Instagram";
+import EmailIcon from "@material-ui/icons/Email";
+import WebsiteIcon from "@material-ui/icons/Public";
+import DirectionsIcon from "@material-ui/icons/Directions";
+import CallIcon from "@material-ui/icons/Call";
+import EditIcon from "@material-ui/icons/Edit";
+import ShareIcon from "@material-ui/icons/Share";
+import LabelButton from 'components/labelButton';
 import {
   MEAL_PROGRAM_CATEGORY_ID,
   FOOD_PANTRY_CATEGORY_ID,
@@ -16,6 +25,7 @@ import { getGoogleMapsUrl, extractNumbers } from "util/index";
 
 const useStyles = makeStyles(({ breakpoints }) => ({
   stakeholder: {
+    overflowX: 'hidden',
     width: "100%",
     display: "flex",
     flexDirection: "column",
@@ -97,12 +107,16 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     padding: ".25em .5em",
     borderRadius: "3px",
   },
-  buttons: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
+  buttonContainer: {
+    width: 'calc(100% + 30px)',
     marginTop: "10px",
+  },
+  buttons: {
+    width: '100%',
+    paddingLeft: '10px',
+    paddingRight: '10px',
+    overflowX: 'scroll',
+    whiteSpace: 'nowrap',
   },
   numbers: {
     display: "inline",
@@ -190,6 +204,7 @@ const StakeholderDetails = ({
     }
   });
 
+  const mainNumber = extractNumbers(stakeholder.phone).find((n) => n.number);
   const modifiedDate = stakeholder.approvedDate || stakeholder.modifiedDate || stakeholder.createdDate
 
   return (
@@ -280,24 +295,81 @@ const StakeholderDetails = ({
           {dayjs(modifiedDate).format("MMM DD, YYYY")}
         </p>
       ) : null}
-      <div className={classes.buttons}>
-        <Button
-          variant="outlined"
-          onClick={() =>
-            window.open(
-              getGoogleMapsUrl(
-                stakeholder.zip,
-                stakeholder.address1,
-                stakeholder.address2 || null
+      <div className={classes.buttonContainer}>
+        <div className={classes.buttons}>
+          <LabelButton
+            onClick={() =>
+              window.open(
+                getGoogleMapsUrl(
+                  stakeholder.zip,
+                  stakeholder.address1,
+                  stakeholder.address2 || null
+                )
               )
-            )
+            }
+            label="Directions"
+          >
+            <DirectionsIcon />
+          </LabelButton>
+          {mainNumber && (
+            <LabelButton
+              onClick={() => window.open(`tel:${mainNumber.value}`)}
+              label="Call"
+            >
+              <CallIcon />
+            </LabelButton>
+          )}
+          {stakeholder.website &&
+            <a
+              href={stakeholder.website}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <LabelButton label="Website">
+                <WebsiteIcon />
+              </LabelButton>
+            </a>
           }
-        >
-          Directions
-        </Button>
-        <Button variant="outlined" onClick={() => {}}>
-          Send Correction
-        </Button>
+          <LabelButton label="Send Correction">
+            <EditIcon />
+          </LabelButton>
+          <LabelButton label="Share">
+            <ShareIcon />
+          </LabelButton>
+          {stakeholder.email &&
+            <a
+              href={"mailto:" + stakeholder.email}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <LabelButton label="Email">
+                <EmailIcon />
+              </LabelButton>
+            </a>
+          }
+          {stakeholder.instagram &&
+            <a
+              href={stakeholder.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <LabelButton label="Instagram">
+                <InstagramIcon />
+              </LabelButton>
+            </a>
+          }
+          {stakeholder.facebook &&
+            <a
+              href={stakeholder.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <LabelButton label="Facebook">
+                <FacebookIcon />
+              </LabelButton>
+            </a>
+          }
+        </div>
       </div>
       {stakeholder.hours ? (
         <>
@@ -335,27 +407,12 @@ const StakeholderDetails = ({
         </>
       ) : null}
 
-      <h2 className={classes.title}>Phone</h2>
-      {numbers.length ? (
-        <div className={classes.numbers}>{numbers}</div>
-      ) : (
-        <span className={classes.fontSize}>No Phone Number on record</span>
-      )}
-      <h2 className={classes.title}>E-Mail</h2>
-      {stakeholder.email ? (
+      {numbers.length > 1 &&
         <>
-          <a
-            className={classes.fontSize}
-            href={"mailto:" + stakeholder.email}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {stakeholder.email}
-          </a>
+          <h2 className={classes.title}>All phone numbers</h2>
+          <div className={classes.numbers}>{numbers}</div>
         </>
-      ) : (
-        <span className={classes.fontSize}>No E-Mail Address on record</span>
-      )}
+      }
 
       <h2 className={classes.title}>Eligibility/Requirements</h2>
       {stakeholder.requirements ? (
@@ -391,20 +448,6 @@ const StakeholderDetails = ({
         <span className={classes.fontSize}>No covid notes to display.</span>
       )}
 
-      {stakeholder.website ? (
-        <>
-          <h2 className={classes.title}>Website</h2>
-          <a
-            className={classes.fontSize}
-            href={stakeholder.website}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {stakeholder.website}
-          </a>
-        </>
-      ) : null}
-
       {stakeholder.services ? (
         <>
           <h2 className={classes.title}>Services</h2>
@@ -421,33 +464,6 @@ const StakeholderDetails = ({
         </>
       ) : null}
 
-      {/* {stakeholder.facebook || stakeholder.instagram ? (
-        <>
-          <h2 className={classes.title}>Social Media</h2>
-          <div className={classes.icon}>
-            {stakeholder.facebook ? (
-              <a
-                className={classes.icons}
-                href={stakeholder.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img alt="fb-logo" src={fbIcon} />
-              </a>
-            ) : null}
-            {stakeholder.instagram ? (
-              <a
-                className={classes.icons}
-                href={stakeholder.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img alt="ig-logo" src={instaIcon} />
-              </a>
-            ) : null}
-          </div>
-        </>
-      ) : null} */}
       {/* <svg
         width="40"
         height="40"
