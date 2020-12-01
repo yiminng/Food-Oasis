@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -128,6 +129,7 @@ const MobileView = ({
 }
 
 export default function Index({ defaultLocation, stakeholders }) {
+  const router = useRouter()
   const [origin, setOrigin] = useState({
     lat: defaultLocation.center.lat,
     lon: defaultLocation.center.lon,
@@ -157,7 +159,21 @@ export default function Index({ defaultLocation, stakeholders }) {
       height: '100%',
     });
     selectStakeholder(stakeholder);
+    if (stakeholder) {
+      const name = stakeholder.name.toLowerCase().replaceAll(' ', '_');
+      router.push(`?org=${name}`, undefined, { shallow: true })
+    } else {
+      router.push('/', undefined, { shallow: true })
+    }
   }
+
+  useEffect(() => {
+    const { org } = router.query
+    if (org) {
+      const stakeholder = stakeholders.find(s => s.name.toLowerCase() === org.replaceAll('_', ' '))
+      selectStakeholder(stakeholder);
+    }
+  }, [])
 
   return (
     <Layout origin={origin} setOrigin={setOrigin} isMapView={isMapView} setMapView={setMapView}>
