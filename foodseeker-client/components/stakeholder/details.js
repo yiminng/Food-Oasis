@@ -1,5 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { Fab } from "@material-ui/core";
 import dayjs from 'dayjs';
 import clsx from 'clsx';
 import FacebookIcon from "@material-ui/icons/Facebook";
@@ -10,6 +11,7 @@ import DirectionsIcon from "@material-ui/icons/Directions";
 import CallIcon from "@material-ui/icons/Call";
 import EditIcon from "@material-ui/icons/Edit";
 import ShareIcon from "@material-ui/icons/Share";
+import BackIcon from "@material-ui/icons/ArrowBack";
 
 import CategoryTile from 'components/categoryTile';
 import LabelButton from 'components/labelButton';
@@ -100,6 +102,11 @@ const useStyles = makeStyles(({ breakpoints, palette }) => ({
   name: {
     display: 'flex',
     alignItems: 'center',
+  },
+  back: {
+    position: "fixed",
+    bottom: "1em",
+    left: "1em",
   },
 }));
 
@@ -418,6 +425,14 @@ const StakeholderDetails = ({
           <span className={classes.fontSize}>{stakeholder.items}</span>
         </>
       ) : null}
+      <Fab
+        onClick={() => onSelectStakeholder(null)}
+        className={classes.back}
+        color="primary"
+        size="small"
+      >
+        <BackIcon fill="white" />
+      </Fab>
     </div>
   );
 };

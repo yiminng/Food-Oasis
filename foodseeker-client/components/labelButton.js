@@ -23,7 +23,6 @@ const LabelButton = ({ onClick, label, disabled = false, children }) => {
         variant="outlined"
         size="small"
         disabled={disabled}
-        style={{ borderRadius: '50%' }}
       >
         {children}
       </Button>

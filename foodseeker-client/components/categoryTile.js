@@ -3,7 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import PantryIcon from 'icons/pantry';
 import MealIcon from 'icons/meal';
-import PantryAndMealIcon from 'icons/pantryAndMeal';
 
 const useStyles = makeStyles(({ palette }) => ({
   icon: {
@@ -16,18 +15,35 @@ const useStyles = makeStyles(({ palette }) => ({
     justifyContent: 'center',
     borderRadius: '4px',
     paddingLeft: '3px',
-    backgroundColor: props => props.hasPantry ? palette.primary.main : palette.secondary.main,
+    background: props => 
+      props.type === 'both' && `linear-gradient(90deg, ${palette.primary.main} 50%, ${palette.secondary.main} 50%)` ||
+      props.type === 'meal' && palette.primary.main ||
+      props.type === 'pantry' && palette.secondary.main
   },
 }));
 
-const CategoryTile = ({ categories, size = '32px' }) => {
-  const hasPantry = !!categories.find(c => c.name === 'Food Pantry');
+const CategoryTile = ({ categories, size = '44px' }) => {
+  let type;
   let icon;
-  if (categories.length > 1) icon = <PantryAndMealIcon />
-  else if (hasPantry) icon = <PantryIcon />
-  else icon = <MealIcon />
+  if (categories.length > 1) {
+    type = 'both'
+    icon = (
+      <>
+        <PantryIcon style={{ marginLeft: '-5px' }} />
+        <MealIcon style={{ marginLeft: '5px' }} />
+      </>
+    )
+  }
+  else if (!!categories.find(c => c.name === 'Food Pantry')) {
+    type = 'pantry'
+    icon = <PantryIcon />
+  }
+  else {
+    type = 'meal'
+    icon = <MealIcon />
+  }
 
-  const classes = useStyles({ hasPantry, size });
+  const classes = useStyles({ type, size });
   return (
     <div className={classes.icon}>
       {icon}

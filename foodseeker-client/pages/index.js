@@ -17,7 +17,7 @@ const MapNoSSR = dynamic(
   { ssr: false }
 )
 
-const useStyles = makeStyles(({ breakpoints }) => ({
+const useStyles = makeStyles(({ breakpoints, palette }) => ({
   gridItem: {
     height: '100%',
     [breakpoints.down('sm')]: {
@@ -33,6 +33,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   },
   map: {
     order: 1,
+    backgroundColor: palette.inactive.light,
     [breakpoints.down('sm')]: {
       order: 0,
     }
@@ -184,9 +185,20 @@ export default function Index({ defaultLocation, stakeholders }) {
 
 export async function getServerSideProps() {
   const defaultLocation = useDefaultLocation();
-  const url = `https://foodoasis.la/api/stakeholderbests?categoryIds[]=1&categoryIds[]=9&latitude=${defaultLocation.center.lat}&longitude=${defaultLocation.center.lon}&distance=${defaultLocation.radius}&isInactive=either&verificationStatusId=0&tenantId=${process.env.NEXT_PUBLIC_TENANT_ID}`
-  const res = await fetch(url)
-  const stakeholders = await res.json()
+  let stakeholders = []
+
+  try {
+    const url = `https://foodoasis.la/api/stakeholderbests?categoryIds[]=1&categoryIds[]=9&latitude=${defaultLocation.center.lat}&longitude=${defaultLocation.center.lon}&distance=${defaultLocation.radius}&isInactive=either&verificationStatusId=0&tenantId=${process.env.NEXT_PUBLIC_TENANT_ID}`
+    const res = await fetch(url)
+    stakeholders = await res.json()
+    if (stakeholders.error) {
+      console.error(stakeholders.error)
+      stakeholders = []
+    }
+  } catch (e) {
+    console.error(e)
+  }
+
   return {
     props: {
       defaultLocation,

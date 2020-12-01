@@ -156,7 +156,6 @@ const StakeholderPreview = ({ stakeholder, onSelectStakeholder, selected }) => {
     >
       <div className={classes.leftInfo}>
         <CategoryTile
-          size="44px"
           categories={stakeholder.categories.filter(c => c.name === 'Food Pantry' || c.name === 'Meal Program')}
         />
         {stakeholder.distance ? (
