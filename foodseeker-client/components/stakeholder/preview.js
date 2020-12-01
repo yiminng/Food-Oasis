@@ -12,8 +12,7 @@ import {
 import { ORGANIZATION_COLORS, CLOSED_COLOR } from "constants/map";
 import { getGoogleMapsUrl, extractNumbers } from "util/index";
 import LabelButton from 'components/labelButton';
-
-// import Icon from "components/Icon";
+import CategoryTile from 'components/categoryTile';
 
 const useStyles = makeStyles(({ palette }) => ({
   stakeholder: {
@@ -156,7 +155,10 @@ const StakeholderPreview = ({ stakeholder, onSelectStakeholder, selected }) => {
       onClick={() => onSelectStakeholder(stakeholder)}
     >
       <div className={classes.leftInfo}>
-        {/* <Icon stakeholder={stakeholder} height="50px" width="50px" /> */}
+        <CategoryTile
+          size="44px"
+          categories={stakeholder.categories.filter(c => c.name === 'Food Pantry' || c.name === 'Meal Program')}
+        />
         {stakeholder.distance ? (
           <div>
             {stakeholder.distance >= 10

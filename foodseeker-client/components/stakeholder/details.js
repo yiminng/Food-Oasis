@@ -1,11 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button } from "@material-ui/core";
 import dayjs from 'dayjs';
-
-// import mapMarker from "images/mapMarker";
-// import fbIcon from "images/fbIcon.png";
-// import instaIcon from "images/instaIcon.png";
+import clsx from 'clsx';
 import FacebookIcon from "@material-ui/icons/Facebook";
 import InstagramIcon from "@material-ui/icons/Instagram";
 import EmailIcon from "@material-ui/icons/Email";
@@ -14,24 +10,19 @@ import DirectionsIcon from "@material-ui/icons/Directions";
 import CallIcon from "@material-ui/icons/Call";
 import EditIcon from "@material-ui/icons/Edit";
 import ShareIcon from "@material-ui/icons/Share";
+
+import CategoryTile from 'components/categoryTile';
 import LabelButton from 'components/labelButton';
-import {
-  MEAL_PROGRAM_CATEGORY_ID,
-  FOOD_PANTRY_CATEGORY_ID,
-  VERIFICATION_STATUS,
-} from "constants/stakeholder";
+import { VERIFICATION_STATUS } from "constants/stakeholder";
 import { getGoogleMapsUrl, extractNumbers } from "util/index";
 
-
-const useStyles = makeStyles(({ breakpoints }) => ({
+const useStyles = makeStyles(({ breakpoints, palette }) => ({
   stakeholder: {
     overflowX: 'hidden',
     width: "100%",
     display: "flex",
     flexDirection: "column",
-    textAlign: "center",
     padding: "1em",
-    alignItems: "center",
     paddingBottom: "5em",
     flexShrink: 0,
     overflowY: 'scroll',
@@ -41,26 +32,17 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     },
   },
   topInfo: {
-    width: "100%",
-    display: "inherit",
-    justifyContent: "inherit",
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
   },
   info: {
     fontSize: "1.1em",
-    textAlign: "left",
     width: "60%",
     display: "inherit",
     flexDirection: "column",
     justifyContent: "space-between",
-  },
-  check: {
-    width: "10%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-  title: {
-    alignSelf: "flex-start",
   },
   hoursContainer: {
     width: "100%",
@@ -76,24 +58,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   },
   fontSize: {
     fontSize: "14px",
-    alignSelf: "flex-start",
-    textAlign: "left",
-  },
-  icon: {
-    display: "flex",
-    alignSelf: "flex-start",
-  },
-  icons: {
-    alignSelf: "flex-start",
-    margin: "0 1em 0 0",
-  },
-  arrow: {
-    position: "fixed",
-    bottom: "1em",
-    left: "1em",
-    alignSelf: "flex-start",
-    margin: "1em 0 0 0",
-    cursor: "pointer",
+    width: '100%',
   },
   label: {
     width: "100%",
@@ -115,12 +80,26 @@ const useStyles = makeStyles(({ breakpoints }) => ({
     width: '100%',
     paddingLeft: '10px',
     paddingRight: '10px',
+    marginLeft: '-15px',
     overflowX: 'scroll',
     whiteSpace: 'nowrap',
+    textAlign: 'center',
   },
   numbers: {
     display: "inline",
-    alignSelf: "flex-start",
+  },
+  categoryName: {
+    fontWeight: 'bold',
+  },
+  pantry: {
+    color: palette.primary.main,
+  },
+  meal: {
+    color: palette.secondary.main,
+  },
+  name: {
+    display: 'flex',
+    alignItems: 'center',
   },
 }));
 
@@ -130,7 +109,6 @@ const StakeholderDetails = ({
   setToast,
 }) => {
   const classes = useStyles();
-  console.log(stakeholder)
   // const [SuggestionDialogOpen, setSuggestionDialogOpen] = useState(false);
 
   // const handleSuggestionDialogOpen = async () => {
@@ -205,7 +183,8 @@ const StakeholderDetails = ({
   });
 
   const mainNumber = extractNumbers(stakeholder.phone).find((n) => n.number);
-  const modifiedDate = stakeholder.approvedDate || stakeholder.modifiedDate || stakeholder.createdDate
+  const modifiedDate = stakeholder.approvedDate || stakeholder.modifiedDate || stakeholder.createdDate;
+  const categories = stakeholder.categories.filter(c => c.name === 'Food Pantry' || c.name === 'Meal Program')
 
   return (
     <div className={classes.stakeholder}>
@@ -217,33 +196,33 @@ const StakeholderDetails = ({
         stakeholder={stakeholder}
         setToast={setToast}
       /> */}
+      <div className={classes.name}>
+        <CategoryTile categories={categories} />
+        <h3 style={{ margin: 0, marginLeft: '8px' }}>{stakeholder.name}</h3>
+      </div>
+      <p>
+        {categories.length > 1 ?
+          <span className={classes.categoryName}>
+            <span className={classes.pantry}>Food Pantry</span>
+            {' '}&amp;{' '}
+            <span className={classes.meal}>Meal Program</span>
+          </span> :
+          <span className={clsx(classes.categoryName, categories[0].name === 'Food Pantry' ? classes.pantry : classes.meal)}>
+            {categories[0].name}
+          </span>
+        }
+        {stakeholder.foodBakery && <span>Bakery</span>}
+        {stakeholder.foodDairy && <span>Dairy</span>}
+        {stakeholder.foodDryGoods && <span>Dry Goods</span>}
+        {stakeholder.foodMeat && <span>Meat</span>}
+        {stakeholder.foodPrepared && <span>Prepared Meals</span>}
+      </p>
       <div className={classes.topInfo}>
-        {/* <Icon stakeholder={stakeholder} /> */}
         <div className={classes.info}>
-          <span>{stakeholder.name}</span>
           <span>{stakeholder.address1}</span>
           <div>
             {stakeholder.city} {stakeholder.zip}
           </div>
-          {stakeholder.categories.map((category) => (
-            <em
-              key={category.id}
-              // style={{
-              //   alignSelf: "flex-start",
-              //   color:
-              //     stakeholder.inactiveTemporary ||
-              //     stakeholder.inactive
-              //       ? CLOSED_COLOR
-              //       : category.id === FOOD_PANTRY_CATEGORY_ID
-              //       ? ORGANIZATION_COLORS[FOOD_PANTRY_CATEGORY_ID]
-              //       : category.id === MEAL_PROGRAM_CATEGORY_ID
-              //       ? ORGANIZATION_COLORS[MEAL_PROGRAM_CATEGORY_ID]
-              //       : "#000",
-              // }}
-            >
-              {category.name}
-            </em>
-          ))}
           <div className={classes.label}>
             {stakeholder.inactiveTemporary ||
             stakeholder.inactive ? (
@@ -255,7 +234,7 @@ const StakeholderDetails = ({
             ) : null}
           </div>
         </div>
-        <div className={classes.check}>
+        <div>
           {stakeholder.distance >= 10
             ? stakeholder.distance
                 .toString()
@@ -263,38 +242,8 @@ const StakeholderDetails = ({
                 .padEnd(4, "0")
             : stakeholder.distance.toString().substring(0, 3)}{" "}
           mi
-          {/* {mapMarker(
-            stakeholder.categories[0].id === FOOD_PANTRY_CATEGORY_ID &&
-              stakeholder.categories[1] &&
-              stakeholder.categories[1].id === MEAL_PROGRAM_CATEGORY_ID
-              ? -1
-              : stakeholder.categories[0].id === FOOD_PANTRY_CATEGORY_ID
-              ? 0
-              : 1,
-            stakeholder.inactiveTemporary ||
-              stakeholder.inactive
-              ? true
-              : false
-          )} */}
         </div>
       </div>
-      {stakeholder.verificationStatusId ===
-      VERIFICATION_STATUS.VERIFIED ? (
-        <p
-          // style={{
-          //   color:
-          //     stakeholder.inactiveTemporary ||
-          //     stakeholder.inactive
-          //       ? CLOSED_COLOR
-          //       : stakeholder.categories[0].id === 1
-          //       ? ORGANIZATION_COLORS[FOOD_PANTRY_CATEGORY_ID]
-          //       : ORGANIZATION_COLORS[MEAL_PROGRAM_CATEGORY_ID],
-          // }}
-        >
-          Data updated on{" "}
-          {dayjs(modifiedDate).format("MMM DD, YYYY")}
-        </p>
-      ) : null}
       <div className={classes.buttonContainer}>
         <div className={classes.buttons}>
           <LabelButton
@@ -330,7 +279,7 @@ const StakeholderDetails = ({
               </LabelButton>
             </a>
           }
-          <LabelButton label="Send Correction">
+          <LabelButton label="Update?">
             <EditIcon />
           </LabelButton>
           <LabelButton label="Share">
@@ -371,6 +320,12 @@ const StakeholderDetails = ({
           }
         </div>
       </div>
+      {stakeholder.verificationStatusId === VERIFICATION_STATUS.VERIFIED &&
+        <p>
+          Last updated:{" "}
+          {dayjs(modifiedDate).format("MMM DD, YYYY")}
+        </p>
+      }
       {stakeholder.hours ? (
         <>
           <h2 className={classes.title}>Hours</h2>
@@ -463,42 +418,6 @@ const StakeholderDetails = ({
           <span className={classes.fontSize}>{stakeholder.items}</span>
         </>
       ) : null}
-
-      {/* <svg
-        width="40"
-        height="40"
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        onClick={() => onSelectStakeholder(null)}
-        className={classes.arrow}
-      >
-        <circle
-          cx="20"
-          cy="20"
-          r="20"
-          fill={
-            stakeholder.inactiveTemporary ||
-            stakeholder.inactive
-              ? CLOSED_COLOR
-              : stakeholder.categories[0].id === 1
-              ? ORGANIZATION_COLORS[FOOD_PANTRY_CATEGORY_ID]
-              : ORGANIZATION_COLORS[MEAL_PROGRAM_CATEGORY_ID]
-          }
-        />
-        <path
-          d="M5.38477 19.6153L19.8078 11.2882L19.8078 27.9425L5.38477 19.6153Z"
-          fill="white"
-        />
-        <line
-          x1="19.2309"
-          y1="18.8076"
-          x2="31.5386"
-          y2="18.8076"
-          stroke="white"
-          strokeWidth="7"
-        />
-      </svg> */}
     </div>
   );
 };

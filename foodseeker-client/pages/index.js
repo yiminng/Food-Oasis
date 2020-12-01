@@ -39,7 +39,7 @@ const useStyles = makeStyles(({ breakpoints }) => ({
   },
 }));
 
-const useMobileStyles = makeStyles((props) => ({
+const useMobileStyles = makeStyles(() => ({
   map: {
     height: props => props.selected ? 'calc(100% - 150px)' : '100%',
     width: '100%',

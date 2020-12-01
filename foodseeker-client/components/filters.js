@@ -6,8 +6,8 @@ import LocationSearchingIcon from "@material-ui/icons/LocationSearching";
 import MapIcon from "@material-ui/icons/Map";
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
 
-import PantryIcon from 'icons/pantryIcon';
-import MealIcon from 'icons/mealIcon';
+import PantryIcon from 'icons/pantry';
+import MealIcon from 'icons/meal';
 import { useGeolocation } from "hooks/location";
 import useMobile from 'hooks/useMobile';
 

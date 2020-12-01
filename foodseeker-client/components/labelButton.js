@@ -8,7 +8,8 @@ const useStyles = makeStyles(({ palette }) => ({
     display: 'inline-block',
   },
   buttonText: {
-    fontSize: '10px',
+    fontSize: '12px',
+    fontWeight: 'bold',
     textAlign: 'center',
     color: palette.primary.main,
   },
@@ -22,6 +23,7 @@ const LabelButton = ({ onClick, label, disabled = false, children }) => {
         variant="outlined"
         size="small"
         disabled={disabled}
+        style={{ borderRadius: '50%' }}
       >
         {children}
       </Button>
