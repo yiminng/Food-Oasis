@@ -151,7 +151,6 @@ export default function Index() {
 
   const { data } = useQuery('stakeholders', getStakeholders)
   const stakeholders = data || [];
-  console.log(stakeholders);
 
   const onSelectStakeholder = (stakeholder) => {
     if (stakeholder) {
@@ -181,7 +180,7 @@ export default function Index() {
       const stakeholder = stakeholders.find(s => s.name.toLowerCase() === org.replaceAll('_', ' '))
       selectStakeholder(stakeholder);
     }
-  }, [])
+  }, [stakeholders])
 
   return (
     <Layout origin={origin} setOrigin={setOrigin} isMapView={isMapView} setMapView={setMapView}>
