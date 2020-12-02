@@ -8,12 +8,16 @@ import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted";
 
 import PantryIcon from 'icons/pantry';
 import MealIcon from 'icons/meal';
-import { useGeolocation } from "hooks/location";
+import { getGeolocation } from "util/location";
 import useMobile from 'hooks/useMobile';
+import { SearchPlaceholder } from 'components/search';
 
 const SearchNoSSR = dynamic(
   () => import('components/search'),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: SearchPlaceholder,
+  }
 )
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
@@ -122,7 +126,15 @@ const SwitchViewsButton = ({
 const Filters = ({ origin, setOrigin, isMapView, setMapView }) => {
   const classes = useStyles();
   const isMobile = useMobile();
-  const geolocation = useGeolocation();
+
+  const searchNearby = async () => {
+    const geolocation = await getGeolocation()
+    if (geolocation) setOrigin(geolocation)
+  }
+
+  const onSearch = (e) => {
+    e.preventDefault();
+  }
 
   return (
     <Grid
@@ -166,6 +178,7 @@ const Filters = ({ origin, setOrigin, isMapView, setMapView }) => {
       <Box className={classes.inputContainer}>
         <form
           noValidate
+          onSubmit={onSearch}
           style={{ all: "inherit" }}
         >
           <SearchNoSSR
@@ -173,8 +186,7 @@ const Filters = ({ origin, setOrigin, isMapView, setMapView }) => {
             origin={origin}
           />
           <Button
-            onClick={() => setOrigin(geolocation)}
-            disabled={!geolocation}
+            onClick={searchNearby}
             variant="contained"
             className={classes.nearbySearch}
             startIcon={<LocationSearchingIcon className={classes.nearbyIcon} />}

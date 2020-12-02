@@ -2,7 +2,7 @@ import React from "react";
 import clsx from 'clsx';
 import { AppBar, Toolbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { useDefaultLocation } from "hooks/location";
+import { getDefaultLocation } from "util/location";
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
   headerHolder: {
@@ -46,7 +46,7 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
 
 export default function Header() {
   const classes = useStyles();
-  const defaultLocation = useDefaultLocation();
+  const defaultLocation = getDefaultLocation();
 
   return (
     <AppBar position="sticky" className={classes.headerHolder}>

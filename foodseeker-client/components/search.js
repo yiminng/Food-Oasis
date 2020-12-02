@@ -4,7 +4,7 @@ import { MenuItem, TextField, Paper } from "@material-ui/core";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import { makeStyles } from "@material-ui/core/styles";
 import { useMapboxGeocoder } from "hooks/useMapboxGeocoder";
-import { useGeolocation } from "hooks/location";
+import { getGeolocation } from "util/location";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
   },
   address: {
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     borderRadius: "4px 0 0 4px",
     height: 40,
     "& .MuiInputLabel-outlined": {
@@ -52,7 +52,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Search({ setOrigin, origin }) {
   const classes = useStyles();
 
-  const geolocation = useGeolocation();
   const { mapboxResults, fetchMapboxResults } = useMapboxGeocoder();
   const [selectedPlace, setSelectedPlace] = useState('');
   const [newInputValue, updateNewInputValue] = useState(origin?.locationName);
@@ -69,7 +68,6 @@ export default function Search({ setOrigin, origin }) {
     const result = mapboxResults.find(
       (item) => item.place_name === selectedResult
     );
-    console.log(result);
     if (result) {
       const [long, lat] = result.center;
       setOrigin({
@@ -81,77 +79,94 @@ export default function Search({ setOrigin, origin }) {
     }
   };
 
+  const searchNearby = async () => {
+    const geolocation = await getGeolocation();
+    setOrigin({ ...geolocation, locationName: "Current Location" });
+    handleDownshiftOnChange("Current Location");
+  }
+
   return (
-    <>
-      <Downshift
-        onChange={handleDownshiftOnChange}
-        itemToString={item => item ? item.place_name : ''}
-      >
-        {({
-          getInputProps,
-          getItemProps,
-          inputValue,
-          toggleMenu,
-          isOpen,
-        }) => (
-          <div className={classes.container}>
-            <TextField
-              className={classes.address}
-              variant="outlined"
-              margin="none"
-              fullWidth
-              placeholder="Search by address or zip code"
-              name="address"
-              size="small"
-              autoFocus={false}
-              InputProps={{
-                classes: {
-                  input: classes.input,
+    <Downshift
+      onChange={handleDownshiftOnChange}
+      itemToString={item => item ? item.place_name : ''}
+    >
+      {({
+        getInputProps,
+        getItemProps,
+        inputValue,
+        toggleMenu,
+        isOpen,
+      }) => (
+        <div className={classes.container}>
+          <TextField
+            className={classes.address}
+            variant="outlined"
+            margin="none"
+            fullWidth
+            placeholder="Search by address or zip code"
+            name="address"
+            size="small"
+            autoFocus={false}
+            InputProps={{
+              classes: {
+                input: classes.input,
+              },
+              ...getInputProps({
+                onClick: () => {
+                  setSelectedPlace("");
+                  updateNewInputValue("");
+                  toggleMenu();
                 },
-                ...getInputProps({
-                  onClick: () => {
-                    setSelectedPlace("");
-                    updateNewInputValue("");
-                    toggleMenu();
-                  },
-                  onChange: handleInputChange,
-                  value:
-                    newInputValue && !selectedPlace
-                      ? newInputValue
-                      : inputValue || selectedPlace,
-                }),
-              }}
-            />
-            {isOpen && (
-              <Paper className={classes.paper} square>
-                {!mapboxResults.length && geolocation && geolocation.lat && (
+                onChange: handleInputChange,
+                value:
+                  newInputValue && !selectedPlace
+                    ? newInputValue
+                    : inputValue || selectedPlace,
+              }),
+            }}
+          />
+          {isOpen && (
+            <Paper className={classes.paper} square>
+              {!mapboxResults.length && (
+                <MenuItem
+                  component="div"
+                  onClick={searchNearby}
+                >
+                  <LocationOnIcon /> Current Location
+                </MenuItem>
+              )}
+              {mapboxResults.length > 0 &&
+                mapboxResults.slice(0, 10).map(item => 
                   <MenuItem
+                    {...getItemProps({
+                      item: item.place_name,
+                    })}
+                    key={item.id}
                     component="div"
-                    onClick={() => {
-                      setOrigin({ ...geolocation, locationName: "Current Location" });
-                      handleDownshiftOnChange("Current Location");
-                    }}
                   >
-                    <LocationOnIcon /> Current Location
+                    {item.place_name}
                   </MenuItem>
                 )}
-                {mapboxResults.length > 0 &&
-                  mapboxResults.slice(0, 10).map(item => 
-                    <MenuItem
-                      {...getItemProps({
-                        item: item.place_name,
-                      })}
-                      key={item.id}
-                      component="div"
-                    >
-                      {item.place_name}
-                    </MenuItem>
-                  )}
-              </Paper>
-            )}
-          </div>
-        )}
-      </Downshift>
-    </>
+            </Paper>
+          )}
+        </div>
+      )}
+    </Downshift>
   );
+}
+
+export const SearchPlaceholder = () => {
+  const classes = useStyles();
+  return (
+    <div className={classes.container}>
+      <TextField
+        className={classes.address}
+        variant="outlined"
+        margin="none"
+        fullWidth
+        placeholder="Search by address or zip code"
+        size="small"
+      />
+    </div>
+  )
 }

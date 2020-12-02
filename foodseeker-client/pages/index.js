@@ -4,13 +4,16 @@ import dynamic from 'next/dynamic'
 import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from 'clsx'
+import { useQuery, QueryCache } from 'react-query'
+import { dehydrate } from 'react-query/hydration'
 
 import List from 'components/list';
 import Details from 'components/stakeholder/details';
 import Preview from 'components/stakeholder/preview';
-import { useDefaultLocation } from 'hooks/location';
+import { getDefaultLocation } from 'util/location';
 import Layout from 'components/layout'
 import useMobile from 'hooks/useMobile';
+import { getStakeholders } from 'services';
 
 // Map need access to the window so has to load client-side
 const MapNoSSR = dynamic(
@@ -128,7 +131,8 @@ const MobileView = ({
     )
 }
 
-export default function Index({ defaultLocation, stakeholders }) {
+export default function Index() {
+  const defaultLocation = getDefaultLocation()
   const router = useRouter()
   const [origin, setOrigin] = useState({
     lat: defaultLocation.center.lat,
@@ -144,6 +148,10 @@ export default function Index({ defaultLocation, stakeholders }) {
   })
   const [isMapView, setMapView] = useState(true);
   const isMobile = useMobile();
+
+  const { data } = useQuery('stakeholders', getStakeholders)
+  const stakeholders = data || [];
+  console.log(stakeholders);
 
   const onSelectStakeholder = (stakeholder) => {
     if (stakeholder) {
@@ -199,26 +207,13 @@ export default function Index({ defaultLocation, stakeholders }) {
   );
 };
 
-export async function getServerSideProps() {
-  const defaultLocation = useDefaultLocation();
-  let stakeholders = []
-
-  try {
-    const url = `https://foodoasis.la/api/stakeholderbests?categoryIds[]=1&categoryIds[]=9&latitude=${defaultLocation.center.lat}&longitude=${defaultLocation.center.lon}&distance=${defaultLocation.radius}&isInactive=either&verificationStatusId=0&tenantId=${process.env.NEXT_PUBLIC_TENANT_ID}`
-    const res = await fetch(url)
-    stakeholders = await res.json()
-    if (stakeholders.error) {
-      console.error(stakeholders.error)
-      stakeholders = []
-    }
-  } catch (e) {
-    console.error(e)
-  }
+export async function getStaticProps() {
+  const queryCache = new QueryCache()
+  await queryCache.prefetchQuery('stakeholders', getStakeholders)
 
   return {
     props: {
-      defaultLocation,
-      stakeholders,
+      dehydratedState: dehydrate(queryCache),
     },
   }
 }

@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { ReactQueryCacheProvider, QueryCache } from 'react-query'
+import { Hydrate } from 'react-query/hydration'
 
 import theme from 'theme';
 
-export default function App(props) {
-  const { Component, pageProps } = props;
+const queryCache = new QueryCache()
+
+export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     // Remove the server-side injected CSS.
@@ -16,12 +19,9 @@ export default function App(props) {
   }, []);
 
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Component {...pageProps} />
+        </ThemeProvider>
   );
 }
