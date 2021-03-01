@@ -3,8 +3,9 @@ on:
   push:
     branches:
       - aws-deployment
-      - develope
-      - main
+  release:
+    types:
+      - published
 
 env:
   DOCKER_REPOSITORY: foodoasisla/foodoasisla
@@ -33,7 +34,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION_PROD }}
 
-    - name: Pull Task Definition
+    - name: Pull Task Definition & write to file
       id: aws-task-definition
       run: |
         echo "::set-output name=task-definition::$(\
@@ -64,8 +65,7 @@ jobs:
       with:
         task-definition: task-def.json
         container-name: ${{ env.AWS_APP_ENVNAME }}-container
-        # image: ${{ env.DOCKER_REPOSITORY }}:sha-${{ steps.vars.outputs.sha_short }}
-        image: ${{ env.DOCKER_REPOSITORY }}:1.0.44
+        image: ${{ env.DOCKER_REPOSITORY }}:sha-${{ steps.vars.outputs.sha_short }}
 
     - name: Deploy Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
