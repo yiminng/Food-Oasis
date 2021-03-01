@@ -54,8 +54,8 @@ jobs:
         tag_with_sha: true
         add_git_labels: true
 
-    - name: Configure short Git tag
-      run: echo "SHORT_SHA=`echo ${ github.sha } | cut -c1-8`" >> $GITHUB_ENV
+    - name: Set GIT short sha
+      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
     - name: Add new image ID in the Amazon ECS task definition
       id: task-definition
@@ -63,7 +63,7 @@ jobs:
       with:
         task-definition: task-def.json
         container-name: ${{ env.AWS_APP_ENVNAME }}-container
-        image: ${{ env.DOCKER_REPOSITORY }}:${{ SHORT_SHA }}
+        image: ${{ env.DOCKER_REPOSITORY }}:${{ steps.vars.outputs.sha_short }}
 
     - name: Deploy Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
