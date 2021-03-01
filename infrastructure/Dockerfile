@@ -25,7 +25,6 @@ COPY ./server/server.js ./
 #COPY db/config.js ./db/
 COPY --from=clientBuilder /app/build ./client/build
 
-# we dont want to run as sudo so create group and user
 RUN groupadd -r fola && useradd --no-log-init -r -g fola fola
 USER fola
 

@@ -55,6 +55,7 @@ jobs:
         add_git_labels: true
 
     - name: Set GIT short sha
+      id: vars
       run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
     - name: Add new image ID in the Amazon ECS task definition
