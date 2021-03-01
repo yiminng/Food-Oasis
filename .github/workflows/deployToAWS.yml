@@ -64,7 +64,8 @@ jobs:
       with:
         task-definition: task-def.json
         container-name: ${{ env.AWS_APP_ENVNAME }}-container
-        image: ${{ env.DOCKER_REPOSITORY }}:sha-${{ steps.vars.outputs.sha_short }}
+        # image: ${{ env.DOCKER_REPOSITORY }}:sha-${{ steps.vars.outputs.sha_short }}
+        image: ${{ env.DOCKER_REPOSITORY }}:1.0.44
 
     - name: Deploy Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
