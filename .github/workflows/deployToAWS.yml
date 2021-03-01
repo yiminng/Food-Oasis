@@ -61,7 +61,6 @@ jobs:
         task-definition: task-def.json
         container-name: ${{ env.AWS_APP_ENVNAME }}-container
         image: ${{ steps.docker_build.outputs.digest }}
-        image: foodoasisla/foodoasisla:main
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
