@@ -30,4 +30,5 @@ USER fola
 
 EXPOSE 5000
 
-ENTRYPOINT ["/usr/local/bin/node", "server.js"]
+# ENTRYPOINT ["/usr/local/bin/npm", "run", "migrate", "up"]
+CMD ["/usr/local/bin/npm", "run", "migrate", "up", "&&", "/usr/local/bin/node", "server.js"]
