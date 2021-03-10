@@ -11,8 +11,8 @@ env:
   DOCKER_REPOSITORY: foodoasisla/foodoasisla
   AWS_ECS_CLUSTER_NAME: foodoasis-prod
   AWS_APP_ENVNAME: foodoasis-prod
-  AWS_REGION_PROD: us-west-1
-  AWS_REGION_STAGE: us-west-1
+  AWS_REGION_PROD: us-west-2
+  AWS_REGION_STAGE: us-west-2
   
 jobs:
   production-deploy:
