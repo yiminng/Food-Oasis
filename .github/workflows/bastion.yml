@@ -7,13 +7,9 @@ on:
         required: true
         default: 'enable'
 ​
-env:
-  BASTION_ASG_NAME: foodoasis-prod-bastion
-  AWS_REGION_PROD: us-west-2
-
 jobs:
   bastion:
-    name: Turn on Bastion
+    name: Scale Bastion server
     runs-on: ubuntu-latest
 ​
     steps:
@@ -21,14 +17,14 @@ jobs:
       uses: hmarr/debug-action@v1.0.0
 ​
     - name: Interpolate Bastion capacity flag
-      id: aws-task-definition
+      id: bastion_capacity
       run: |
-        echo "::set-output name=bastion_capacity::$(\
+        echo "bastion_count=$(\
           if [[ ${{ github.event.inputs.state }} == 'enable' ]]; then \
           echo 1; \
           else
           echo 0; \
-          fi)"
+          fi)" >> $GITHUB_ENV
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -40,5 +36,5 @@ jobs:
     - name: Scale up/down Bastion ASG
       run: |
         aws autoscaling update-auto-scaling-group \
-        	--auto-scaling-group-name ${{ env.BASTION_ASG_NAME }} \
-        	--desired-capacity 1
+        	--auto-scaling-group-name foodoasis-prod-bastion \
+        	--desired-capacity ${{ env.bastion_count }}
