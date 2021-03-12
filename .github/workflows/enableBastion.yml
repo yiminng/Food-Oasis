@@ -4,7 +4,7 @@ on: workflow_dispatch
 env:
   BASTION_ASG_NAME: foodoasis-prod-bastion
   AWS_REGION_PROD: us-west-2
-  
+
 jobs:
   bastion:
     name: Turn on Bastion
