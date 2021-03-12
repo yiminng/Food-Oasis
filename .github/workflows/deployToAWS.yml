@@ -17,7 +17,7 @@ env:
 jobs:
   production-deploy:
     name: Deploy production into AWS
-    if: github.ref == 'refs/heads/aws-deployment'
+    if: github.ref == 'refs/heads/aws'
     runs-on: ubuntu-latest
 
     steps:
