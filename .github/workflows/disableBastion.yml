@@ -1,5 +1,6 @@
 name: Disable Bastion Server
-on: workflow_dispatch
+on:
+  workflow_dispatch
 ​
 env:
   BASTION_ASG_NAME: foodoasis-prod-bastion
