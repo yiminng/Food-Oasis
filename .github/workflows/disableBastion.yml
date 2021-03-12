@@ -2,10 +2,6 @@ name: Disable Bastion Server
 on:
   workflow_dispatch
 ​
-env:
-  BASTION_ASG_NAME: foodoasis-prod-bastion
-  AWS_REGION_PROD: us-west-2
-
 jobs:
   bastion:
     name: Terminate Bastion
@@ -20,10 +16,10 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION_PROD }}
+        aws-region: us-west-2
 ​
     - name: Scale up/down Bastion ASG
       run: |
         aws autoscaling update-auto-scaling-group \
-        	--auto-scaling-group-name ${{ env.BASTION_ASG_NAME }} \
+        	--auto-scaling-group-name foodoasis-prod-bastion \
         	--desired-capacity 0
