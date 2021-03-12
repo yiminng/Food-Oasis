@@ -1,6 +1,11 @@
-name: Enable Bastion Server
-on:
-  workflow_dispatch
+name: Turn on/off Bastion Server
+on: 
+  workflow_dispatch:
+    inputs:
+      state:
+        description: 'Turn bastion on/off'     
+        required: true
+        default: 'enable'
 ​
 env:
   BASTION_ASG_NAME: foodoasis-prod-bastion
@@ -15,6 +20,16 @@ jobs:
     - name: Debug Action
       uses: hmarr/debug-action@v1.0.0
 ​
+    - name: Interpolate Bastion capacity flag
+      id: aws-task-definition
+      run: |
+        echo "::set-output name=bastion_capacity::$(\
+          if [[ ${{ github.event.inputs.state }} == 'enable' ]]; then \
+          echo 1; \
+          else
+          echo 0; \
+          fi)"
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
