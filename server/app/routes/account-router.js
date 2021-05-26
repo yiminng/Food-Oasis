@@ -1,11 +1,16 @@
 const router = require("express").Router();
 const accountController = require("../controllers/account-controller");
 const jwtSession = require("../../middleware/jwt-session");
+const accountJoiMiddleware = require("../../middleware/joi/account-controller-validation");
 //const authenticate = require("../../middleware/authenticate");
 
 router.get("/", jwtSession.validateUser, accountController.getAll);
 
-router.post("/register", accountController.register);
+router.post(
+  "/register",
+  accountJoiMiddleware.registerAccountSchema,
+  accountController.register
+);
 router.post(
   "/resendConfirmationEmail",
   accountController.resendConfirmationEmail
