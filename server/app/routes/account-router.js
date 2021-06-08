@@ -13,12 +13,25 @@ router.post(
 );
 router.post(
   "/resendConfirmationEmail",
+  accountJoiMiddleware.resendConfirmationEmail,
   accountController.resendConfirmationEmail
 );
-router.post("/confirmRegister", accountController.confirmRegister);
+router.post(
+  "/confirmRegister",
+  accountJoiMiddleware.confirmRegister,
+  accountController.confirmRegister
+);
 
-router.post("/forgotPassword", accountController.forgotPassword);
-router.post("/resetPassword", accountController.resetPassword);
+router.post(
+  "/forgotPassword",
+  accountJoiMiddleware.forgotPassword,
+  accountController.forgotPassword
+);
+router.post(
+  "/resetPassword",
+  accountJoiMiddleware.resetPassword,
+  accountController.resetPassword
+);
 router.post(
   "/setPermissions",
   jwtSession.validateUserHasRequiredRoles(["security_admin", "global_admin"]),
