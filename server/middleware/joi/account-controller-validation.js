@@ -30,6 +30,38 @@ function registerAccountSchema(req, res, next) {
   validationHelper(schema, req, next);
 }
 
+function resendConfirmationEmail(req, res, next) {
+  const schema = Joi.object({
+    email: Joi.string().required(),
+    clientUrl: Joi.string().required(),
+  });
+  validationHelper(schema, req, next);
+}
+
+function confirmRegister(req, res, next) {
+  const schema = Joi.object({
+    id: Joi.number().required(),
+    token: Joi.string().required(),
+  });
+  validationHelper(schema, req, next);
+}
+
+function forgotPassword(req, res, next) {
+  const schema = Joi.object({
+    email: Joi.string().required(),
+    clientUrl: Joi.string.required(),
+  });
+  validationHelper(schema, req, next);
+}
+
+function resetPassword(req, res, next) {
+  const schema = Joi.object({
+    token: Joi.string().required(),
+    password: Joi.string().required(),
+  });
+  validationHelper(schema, req, next);
+}
+
 function getAllSchema(req, res, next) {
   const schema = Joi.object({
     tenantId: Joi.number.required(),
@@ -49,4 +81,8 @@ module.exports = {
   registerAccountSchema,
   getAllSchema,
   getByIdSchema,
+  resendConfirmationEmail,
+  confirmRegister,
+  forgotPassword,
+  resetPassword,
 };
