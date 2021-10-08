@@ -35,8 +35,6 @@ const ResultsContainer = ({
   const { categoryIds, toggleCategory } = useCategoryIds([]);
   const [isVerifiedSelected, selectVerified] = useState(false);
   const [showList, setShowList] = useState(true);
-  const latitude = origin?.latitude;
-  const longitude = origin?.longitude;
 
   // useEffect(() => {
   //   function execute() {
