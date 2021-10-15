@@ -17,17 +17,20 @@ import {
 } from "./MarkerHelpers";
 import useStyles from "./styles";
 import * as analytics from "services/analytics";
-import { Button } from '../../../../components/UI';
+import { Button } from "../../../../components/UI";
 
-const ResultsMap = ({
-  center,
-  stakeholders,
-  doSelectStakeholder,
-  selectedStakeholder,
-  categoryIds,
-  loading,
-  searchMapArea,
-}, ref) => {
+const ResultsMap = (
+  {
+    center,
+    stakeholders,
+    doSelectStakeholder,
+    selectedStakeholder,
+    categoryIds,
+    loading,
+    searchMapArea,
+  },
+  ref
+) => {
   const classes = useStyles();
   const mapRef = useRef();
   const [markersLoaded, setMarkersLoaded] = useState(false);
@@ -35,6 +38,8 @@ const ResultsMap = ({
     latitude: center.latitude,
     longitude: center.longitude,
     zoom: defaultViewport.zoom,
+    pitch: 0,
+    bearing: 0,
   });
 
   useEffect(() => {
@@ -74,67 +79,76 @@ const ResultsMap = ({
     return isDragging ? "grabbing" : isHovering ? "pointer" : "grab";
   }, []);
 
+  const getViewport = useCallback(() => {
+    const map = mapRef.current.getMap();
+
+    const { lat: latitude, lng: longitude } = map.getCenter();
+    const zoom = map.getZoom();
+    const { width, height } = map.getContainer().getBoundingClientRect();
+
+    return {
+      center: { latitude, longitude },
+      zoom,
+      dimensions: { width, height },
+    };
+  }, [mapRef]);
+
   const markersGeojson = useMarkersGeojson({
     stakeholders,
     selectedStakeholder,
     categoryIds,
   });
 
-  useImperativeHandle(ref, () => ({
-    getViewport: () => {
-      const map = mapRef.current.getMap();
-
-      const { lat: latitude, lng: longitude } = map.getCenter();
-      const zoom = map.getZoom();
-      const { width, height } = map.getContainer().getBoundingClientRect();
-
-      return {
-        center: { latitude, longitude },
-        zoom,
-        dimensions: { width, height },
-      };
-    },
-  }), []);
+  useImperativeHandle(
+    ref,
+    () => ({
+      getViewport,
+    }),
+    []
+  );
 
   return (
-    <ReactMapGL
-      ref={mapRef}
-      mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-      mapStyle={MAPBOX_STYLE}
-      {...viewport}
-      onViewportChange={setViewport}
-      onLoad={onLoad}
-      onClick={onClick}
-      interactiveLayerIds={interactiveLayerIds}
-      getCursor={getCursor}
-      width="100%"
-      height="100%"
-      className={classes.map}
-    >
-      <Map.NavigationControl
-        showCompass={false}
-        className={classes.navigationControl}
-      />
-      <Map.ScaleControl
-        maxWidth={100}
-        unit="imperial"
-        className={classes.scaleControl}
-      />
-      {markersLoaded && (
-        <Map.Source type="geojson" data={markersGeojson}>
-          <Map.Layer {...markersLayerStyles} />
-        </Map.Source>
-      )}
-      <Button 
-        variant='outlined'
-        text='Search this area'
-        onClick={searchMapArea}
-        size="small"
-        className={classes.searchButton}
-        disabled={loading}
-      />
-    </ReactMapGL>
+    <>
+      <pre>{`Center: ${origin.latitude}, ${origin.longitude}`}</pre>
+      <ReactMapGL
+        ref={mapRef}
+        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+        mapStyle={MAPBOX_STYLE}
+        {...viewport}
+        onViewportChange={setViewport}
+        onLoad={onLoad}
+        onClick={onClick}
+        interactiveLayerIds={interactiveLayerIds}
+        getCursor={getCursor}
+        width="100%"
+        height="100%"
+        className={classes.map}
+      >
+        <Map.NavigationControl
+          showCompass={false}
+          className={classes.navigationControl}
+        />
+        <Map.ScaleControl
+          maxWidth={100}
+          unit="imperial"
+          className={classes.scaleControl}
+        />
+        {markersLoaded && (
+          <Map.Source type="geojson" data={markersGeojson}>
+            <Map.Layer {...markersLayerStyles} />
+          </Map.Source>
+        )}
+        <Button
+          variant="outlined"
+          text="Search this area"
+          onClick={searchMapArea}
+          size="small"
+          className={classes.searchButton}
+          disabled={loading}
+        />
+      </ReactMapGL>
+    </>
   );
-}
+};
 
 export default forwardRef(ResultsMap);
