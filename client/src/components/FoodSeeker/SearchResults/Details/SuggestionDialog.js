@@ -10,46 +10,15 @@ import {
 } from "@material-ui/core";
 import * as suggestionService from "services/suggestion-service";
 import { Input, Button } from "../../../../components/UI";
+import { DEFAULT_STAKEHOLDER } from "../../../../constants/stakeholder";
 
 function SuggestionDialog(props) {
   const { onClose, open, setToast, stakeholder: sh, ...other } = props;
-  const [stakeholder, setStakeholder] = useState(
-    sh
-      ? {
-          id: sh.id,
-          name: sh.name,
-          address1: sh.address1,
-          address2: sh.address2,
-          city: sh.city,
-          state: sh.state,
-          zip: sh.zip,
-          phone: sh.phone,
-          email: sh.email,
-          notes: "",
-          hours: "",
-          tipsterName: "",
-          tipsterPhone: "",
-          tipsterEmail: "",
-          category: "",
-        }
-      : {
-          id: 0,
-          name: "",
-          address1: "",
-          address2: "",
-          city: "",
-          state: "",
-          zip: "",
-          phone: "",
-          email: "",
-          notes: "",
-          hours: "",
-          tipsterName: "",
-          tipsterPhone: "",
-          tipsterEmail: "",
-          category: "",
-        }
-  );
+
+  const [stakeholder, setStakeholder] = useState({
+    ...DEFAULT_STAKEHOLDER,
+    ...sh,
+  });
 
   const handleCancel = () => {
     onClose(false);
@@ -101,7 +70,7 @@ function SuggestionDialog(props) {
               type="text"
               size="small"
               multiline
-              rows={2}
+              minRows={2}
               maxRows={12}
               label="Corrections"
               name="notes"
@@ -117,7 +86,7 @@ function SuggestionDialog(props) {
               type="text"
               size="small"
               multiline
-              rows={2}
+              minRows={2}
               maxRows={12}
               label="Your Name (optional)"
               name="tipsterName"
@@ -133,7 +102,7 @@ function SuggestionDialog(props) {
               type="text"
               size="small"
               multiline
-              rows={2}
+              minRows={2}
               maxRows={12}
               label="Your Phone (optional)"
               name="tipsterPhone"
@@ -149,7 +118,7 @@ function SuggestionDialog(props) {
               type="text"
               size="small"
               multiline
-              rows={2}
+              minRows={2}
               maxRows={12}
               label="Your Email (optional)"
               name="tipsterEmail"
