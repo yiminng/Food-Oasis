@@ -6,6 +6,13 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+// Mapbox is tricky, because version 6.* is "incompatible with some Babel transforms
+// because of the way it shares code between the maint thread and Web Worker."
+// See https://docs.mapbox.com/mapbox-gl-js/guides/install/#transpiling for details
+// https://github.com/mapbox/mapbox-gl-js/issues/10565 for current Create-React-App
+// recommendation from Mapbox team
+// https://github.com/mapbox/mapbox-gl-js/issues/10173  See comment by IvanDreamer on Mar 22
+// for craco.config.js contents
 import ReactMapGL, * as Map from "react-map-gl";
 import { MAPBOX_STYLE } from "constants/map";
 import { defaultViewport } from "helpers/Configuration";
@@ -108,46 +115,44 @@ const ResultsMap = (
   );
 
   return (
-    <>
-      <pre>{`Center: ${origin.latitude}, ${origin.longitude}`}</pre>
-      <ReactMapGL
-        ref={mapRef}
-        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-        mapStyle={MAPBOX_STYLE}
-        {...viewport}
-        onViewportChange={setViewport}
-        onLoad={onLoad}
-        onClick={onClick}
-        interactiveLayerIds={interactiveLayerIds}
-        getCursor={getCursor}
-        width="100%"
-        height="100%"
-        className={classes.map}
+    <ReactMapGL
+      ref={mapRef}
+      mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}
+      mapStyle={MAPBOX_STYLE}
+      {...viewport}
+      onViewportChange={setViewport}
+      onLoad={onLoad}
+      onClick={onClick}
+      interactiveLayerIds={interactiveLayerIds}
+      getCursor={getCursor}
+      width="100%"
+      height="100%"
+      className={classes.map}
+    >
+      <Map.NavigationControl
+        showCompass={false}
+        className={classes.navigationControl}
+      />
+      <Map.ScaleControl
+        maxWidth={100}
+        unit="imperial"
+        className={classes.scaleControl}
+      />
+      {markersLoaded && (
+        <Map.Source type="geojson" data={markersGeojson}>
+          <Map.Layer {...markersLayerStyles} />
+        </Map.Source>
+      )}
+      <Button
+        variant="outlined"
+        onClick={searchMapArea}
+        size="small"
+        className={classes.searchButton}
+        disabled={loading}
       >
-        <Map.NavigationControl
-          showCompass={false}
-          className={classes.navigationControl}
-        />
-        <Map.ScaleControl
-          maxWidth={100}
-          unit="imperial"
-          className={classes.scaleControl}
-        />
-        {markersLoaded && (
-          <Map.Source type="geojson" data={markersGeojson}>
-            <Map.Layer {...markersLayerStyles} />
-          </Map.Source>
-        )}
-        <Button
-          variant="outlined"
-          text="Search this area"
-          onClick={searchMapArea}
-          size="small"
-          className={classes.searchButton}
-          disabled={loading}
-        />
-      </ReactMapGL>
-    </>
+        Search this area
+      </Button>
+    </ReactMapGL>
   );
 };
 

@@ -7,9 +7,9 @@
   "private": true,
   "proxy": "http://localhost:5000",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "format": "prettier --write  \"**/*.{js,jsx}\"",
     "lint": "eslint -c .eslintrc.json --ignore-path .eslintignore  \"**/*.{js,jsx}\"",
@@ -18,6 +18,7 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
+    "@craco/craco": "^6.3.0",
     "@date-io/moment": "^2.11.0",
     "@mapbox/geo-viewport": "^0.4.1",
     "@material-ui/core": "^4.12.3",
@@ -55,6 +56,9 @@
     "production": [
       ">0.2%",
       "not dead",
+      "not ie 11",
+      "not chrome < 51",
+      "not safari < 10",
       "not op_mini all"
     ],
     "development": [

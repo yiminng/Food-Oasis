@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { withRouter } from "react-router-dom";
+import { withRouter, useLocation } from "react-router-dom";
 import useFoodSeeker from "hooks/useFoodSeeker";
 import useCategoryIds from "hooks/useCategoryIds";
 import useBreakpoints from "hooks/useBreakpoints";
@@ -11,7 +11,7 @@ import Map from "./Map";
 import List from "./List";
 import Preview from "./Preview";
 import Details from "./Details";
-import * as analytics from "services/analytics";
+// import * as analytics from "services/analytics";
 
 const ResultsContainer = ({
   origin,
@@ -104,37 +104,37 @@ const ResultsContainer = ({
 
   // If we read the selectedStakeholderId from the query String Parameter "id" and it is
   // new or different, then select the new stakeholder from stakeholders.
-  // useEffect(() => {
-  //   function execute() {
-  //     const urlSearchParams = new URLSearchParams(location.search);
-  //     const id = Number(urlSearchParams.get("id"));
-  //     if ((!id && !selectedStakeholderId) || id !== selectedStakeholderId) {
-  //       console.log(
-  //         `selecting stakeholder, id = ${id} selectedStakeholderId = ${JSON.stringify(
-  //           selectedStakeholderId,
-  //           null,
-  //           2
-  //         )}`
-  //       );
-  //       const newStakeholder = setSelectedStakeholderById(id);
-  //       setSelectedStakeholderId(id);
-  //       setOrigin({
-  //         latitude: newStakeholder.latitude,
-  //         longitude: newStakeholder.longitude,
-  //       });
-  //       return;
-  //     }
-  //   }
-  //   console.log("starting deep link effect");
-  //   execute();
-  //   console.log("ending deep link effect");
-  // }, [
-  //   location.search,
-  //   setSelectedStakeholderById,
-  //   selectedStakeholderId,
-  //   setSelectedStakeholderId,
-  //   setOrigin,
-  // ]);
+  useEffect(() => {
+    function execute() {
+      const urlSearchParams = new URLSearchParams(location.search);
+      const id = Number(urlSearchParams.get("id"));
+      if ((!id && !selectedStakeholderId) || id !== selectedStakeholderId) {
+        console.log(
+          `selecting stakeholder, id = ${id} selectedStakeholderId = ${JSON.stringify(
+            selectedStakeholderId,
+            null,
+            2
+          )}`
+        );
+        const newStakeholder = setSelectedStakeholderById(id);
+        setSelectedStakeholderId(id);
+        setOrigin({
+          latitude: newStakeholder.latitude,
+          longitude: newStakeholder.longitude,
+        });
+        return;
+      }
+    }
+    console.log("starting deep link effect");
+    execute();
+    console.log("ending deep link effect");
+  }, [
+    location.search,
+    setSelectedStakeholderById,
+    selectedStakeholderId,
+    setSelectedStakeholderId,
+    setOrigin,
+  ]);
 
   // useEffect(() => {
   //   function execute() {
