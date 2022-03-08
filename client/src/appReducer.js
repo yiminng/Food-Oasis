@@ -10,9 +10,9 @@ function searchCoordinatesReducer(state, action) {
       return action.coordinates;
     case "USER_COORDINATES_UPDATED":
       return action.coordinates;
-    case "SELECTED_ORGANIZATION_UPDATED":
-      const { latitude, longitude } = action.organization;
-      return { latitude, longitude };
+    // case "SELECTED_ORGANIZATION_UPDATED":
+    //   const { latitude, longitude } = action.organization;
+    //   return { latitude, longitude };
     case "RESET_COORDINATES":
       return DEFAULT_COORDINATES;
     default:

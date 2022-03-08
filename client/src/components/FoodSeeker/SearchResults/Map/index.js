@@ -22,6 +22,7 @@ import {
   markersLayerStyles,
   useMarkersGeojson,
 } from "./MarkerHelpers";
+import { regionFillStyle, regionBorderStyle } from "./RegionHelpers";
 import useStyles from "./styles";
 import * as analytics from "services/analytics";
 import { Button } from "../../../../components/UI";
@@ -29,7 +30,7 @@ import { useSearchCoordinates, useAppDispatch } from "../../../../appReducer";
 import PropTypes from "prop-types";
 
 const ResultsMap = (
-  { stakeholders, categoryIds, loading, searchMapArea },
+  { stakeholders, categoryIds, loading, searchMapArea, regionGeoJSON },
   ref
 ) => {
   const classes = useStyles();
@@ -58,9 +59,11 @@ const ResultsMap = (
   const onLoad = useCallback(async () => {
     const map = mapRef.current.getMap();
     await loadMarkerIcons(map);
+    // map.once("load", () => {
+    //   loadRegions(map);
+    // });
     setMarkersLoaded(true);
   }, []);
-
   const onClick = useCallback(
     (e) => {
       if (!e.features || !e.features.length) {
@@ -137,6 +140,14 @@ const ResultsMap = (
           <Map.Layer {...markersLayerStyles} />
         </Map.Source>
       )}
+
+      {regionGeoJSON && (
+        <Map.Source id="my-data" type="geojson" data={regionGeoJSON}>
+          <Map.Layer {...regionFillStyle} />
+          <Map.Layer {...regionBorderStyle} />
+        </Map.Source>
+      )}
+
       <Button
         variant="outlined"
         onClick={searchMapArea}
@@ -158,4 +169,5 @@ ResultsMap.propTypes = {
   categoryIds: PropTypes.any,
   loading: PropTypes.bool,
   searchMapArea: PropTypes.any,
+  regionGeoJSON: PropTypes.object,
 };

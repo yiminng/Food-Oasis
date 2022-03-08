@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import useOrganizationBests from "hooks/useOrganizationBests";
 import useCategoryIds from "hooks/useCategoryIds";
 import useBreakpoints from "hooks/useBreakpoints";
+import useNeighborhoodsGeoJSON from "hooks/useNeighborhoodsGeoJSON";
 import { getMapBounds } from "helpers";
 import { Mobile, Tablet, Desktop } from "./layouts";
 import Filters from "./Filters";
@@ -34,12 +35,24 @@ const ResultsContainer = () => {
   // to pass  aneightborhoodId or tag parameter to filter the
   // results by neighborhood or tag from an iframe host site.
   const [tag] = useState("");
-  const [neighborhoodId] = useState(null);
+  const [neighborhoodId] = useState(3);
   const searchCoordinates = useSearchCoordinates();
   const dispatch = useAppDispatch();
   const selectedOrganization = useSelectedOrganization();
+  const { getGeoJSONById } = useNeighborhoodsGeoJSON();
+  const [neighborhoodGeoJSON, setNeighborhoodGeoJSON] = useState(null);
   const history = useHistory();
   const location = useLocation();
+
+  useEffect(() => {
+    async function execute() {
+      if (neighborhoodId) {
+        const geojson = await getGeoJSONById(neighborhoodId);
+        setNeighborhoodGeoJSON(geojson);
+      }
+    }
+    execute();
+  }, [neighborhoodId, getGeoJSONById]);
 
   React.useEffect(() => {
     if (!location.search) return;
@@ -86,7 +99,7 @@ const ResultsContainer = () => {
       categoryIds,
       isInactive: "either",
       verificationStatusId: 0,
-      neighborhoodId: neighborhoodId,
+      neighborhoodId: null,
       tag: tag,
     };
     search(criteria);
@@ -123,6 +136,7 @@ const ResultsContainer = () => {
       categoryIds={categoryIds}
       loading={loading}
       searchMapArea={searchMapArea}
+      regionGeoJSON={neighborhoodGeoJSON?.geojson}
     />
   );
 
