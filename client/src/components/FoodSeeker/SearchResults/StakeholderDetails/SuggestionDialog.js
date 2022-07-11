@@ -8,14 +8,28 @@ import {
   Grid,
   Typography,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import * as suggestionService from "services/suggestion-service";
 import { TextField, Button } from "../../../UI";
 import { DEFAULT_STAKEHOLDER } from "../../../../constants/stakeholder";
 import { useToasterContext } from "../../../../contexts/toasterContext";
 
+// inpute style for material inpute
+const useStyles = makeStyles(() => ({
+  correctionInput: {
+    '& div': {
+      '& textarea': {
+        paddingRight: "2rem"
+      }
+    }
+  }
+}))
+
 function SuggestionDialog(props) {
   const { setToast } = useToasterContext();
   const { onClose, open, stakeholder: sh, ...other } = props;
+  const [inputError, setInputError] = useState(false)
+  const classes = useStyles();
 
   const [stakeholder, setStakeholder] = useState({
     ...DEFAULT_STAKEHOLDER,
@@ -27,11 +41,18 @@ function SuggestionDialog(props) {
   };
 
   const handleChange = (e) => {
+    if (e.target.name === 'notes' && inputError) {
+      setInputError(false);
+    }
     setStakeholder({ ...stakeholder, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = () => {
-    return suggestionService
+    if (!stakeholder.notes) {
+      setInputError(true);
+      return;
+    }
+    return stakeholder.notes && suggestionService
       .post(stakeholder)
       .then(() => {
         setToast({
@@ -67,9 +88,11 @@ function SuggestionDialog(props) {
               Thanks!
             </Typography>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} style={{ position: "relative" }}>
             <TextField
+              error={inputError}
               type="text"
+              className={classes.correctionInput}
               size="small"
               multiline
               minRows={2}
@@ -82,6 +105,8 @@ function SuggestionDialog(props) {
               value={stakeholder.notes}
               onChange={handleChange}
             />
+            <div style={astrikStyle}>*</div>
+            <div style={errorDisc}>{inputError && "Please enter corrections"}</div>
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -149,4 +174,17 @@ SuggestionDialog.propTypes = {
   stakeholder: PropTypes.object,
 };
 
+const astrikStyle = {
+  position: "absolute",
+  top: "40px",
+  right: "2rem",
+  transform: "translateY(-8px)",
+  color: "red",
+  fontSize: "2rem"
+}
+
+const errorDisc = {
+  color: "red",
+  fontSize: "1rem"
+}
 export default SuggestionDialog;
