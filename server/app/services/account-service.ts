@@ -1,3 +1,8 @@
+import {
+  Account,
+  RegisterFields,
+  AccountResponse,
+} from "../types/account-types";
 const db = require("./db");
 const camelcaseKeys = require("camelcase-keys");
 
@@ -12,61 +17,69 @@ const { v4: uuid4 } = require("uuid");
 
 const SALT_ROUNDS = 10;
 
-const selectAll = async (tenantId) => {
+const selectAll = async (tenantId: string): Promise<Account[]> => {
   let sql = `
   select login.id, login.first_name, login.last_name, login.email, login.email_confirmed,
-  login.password_hash, login.date_created, login.is_global_admin, login.is_global_reporting, 
-    lt.tenant_id, lt.is_admin, lt.is_security_admin, lt.is_data_entry, lt.is_coordinator 
-  from login left outer join 
+  login.password_hash, login.date_created, login.is_global_admin, login.is_global_reporting,
+    lt.tenant_id, lt.is_admin, lt.is_security_admin, lt.is_data_entry, lt.is_coordinator
+  from login left outer join
   (
     select * from login_tenant where tenant_id = $<tenantId>
   ) as lt on login.id = lt.login_id
   `;
-  const result = await db.manyOrNone(sql, { tenantId });
+  const result: Account[] = await db.manyOrNone(sql, {
+    tenantId: Number(tenantId),
+  });
   return result.map((r) => camelcaseKeys(r));
 };
 
-const selectById = async (id, tenantId) => {
+const selectById = async (id: string, tenantId: string): Promise<Account> => {
   const sql = `select login.id, login.first_name, login.last_name, login.email, login.email_confirmed,
-  login.password_hash, login.date_created, login.is_global_admin, login.is_global_reporting, 
-  lt.tenant_id, lt.is_admin, lt.is_security_admin, lt.is_data_entry, lt.is_coordinator 
-  from login left outer join 
+  login.password_hash, login.date_created, login.is_global_admin, login.is_global_reporting,
+  lt.tenant_id, lt.is_admin, lt.is_security_admin, lt.is_data_entry, lt.is_coordinator
+  from login left outer join
   (
     select * from login_tenant where tenant_id = $<tenantId>
   ) as lt on login.id = lt.login_id
   where id = $<id>`;
-  const row = await db.one(sql, { id: Number(id), tenantId: Number(tenantId) });
+  const row: Account = await db.one(sql, {
+    id: Number(id),
+    tenantId: Number(tenantId),
+  });
   return camelcaseKeys(row);
 };
 
-const selectByEmail = async (email, tenantId) => {
+const selectByEmail = async (
+  email: string,
+  tenantId: string
+): Promise<Account> => {
   const sql = `select login.id, login.first_name, login.last_name, login.email, login.email_confirmed,
-  login.password_hash, login.date_created, login.is_global_admin, login.is_global_reporting, 
-  lt.tenant_id, lt.is_admin, lt.is_security_admin, lt.is_data_entry, lt.is_coordinator 
-  from login left outer join 
+  login.password_hash, login.date_created, login.is_global_admin, login.is_global_reporting,
+  lt.tenant_id, lt.is_admin, lt.is_security_admin, lt.is_data_entry, lt.is_coordinator
+  from login left outer join
   (
     select * from login_tenant where tenant_id = $<tenantId>
   ) as lt on login.id = lt.login_id
   where email ilike $<email> `;
-  const row = await db.one(sql, { email, tenantId: Number(tenantId) });
+  const row: Account = await db.one(sql, { email, tenantId: Number(tenantId) });
   return camelcaseKeys(row);
 };
 
-const register = async (model) => {
-  const { email, clientUrl, tenantId } = model;
-  let result = null;
-  await hashPassword(model);
+const register = async (body: RegisterFields): Promise<AccountResponse> => {
+  const { email, clientUrl, tenantId } = body;
+  let result: AccountResponse;
+  await hashPassword(body);
   try {
     const sql = `insert into login (first_name, last_name, email,
         password_hash)
         values ($<firstName>, $<lastName>, $<email>, $<passwordHash>) returning id`;
-    const row = await db.one(sql, model);
+    const row = await db.one(sql, body);
     result = {
       isSuccess: true,
       code: "REG_SUCCESS",
-      newId: row.id,
+      newId: row.id as string,
       message: "Registration successful.",
-    };
+    } as const;
     const sqlRole = `insert into login_tenant (login_id, tenant_id, is_data_entry)
       values ($<loginId>, $<tenantId>, true)`;
     await db.none(sqlRole, { loginId: row.id, tenantId: Number(tenantId) });
@@ -78,18 +91,22 @@ const register = async (model) => {
       isSuccess: false,
       code: "REG_DUPLICATE_EMAIL",
       message: `Email ${email} is already registered. `,
+      newId: null,
     };
   }
 };
 
 // Re-transmit confirmation email
-const resendConfirmationEmail = async (email, clientUrl) => {
-  let result = null;
+const resendConfirmationEmail = async (
+  email: string,
+  clientUrl: string
+): Promise<AccountResponse> => {
+  let result: AccountResponse;
   try {
     const sql = `select id from  login where email ilike $<email>`;
     const rows = await db.manyOrNone(sql, { email });
     result = {
-      success: true,
+      isSuccess: true,
       code: "REG_SUCCESS",
       newId: rows[0].id,
       message: "Account found.",
@@ -100,8 +117,9 @@ const resendConfirmationEmail = async (email, clientUrl) => {
     // Assume any error is an email that does not correspond to
     // an account.
     return {
-      success: false,
+      isSuccess: false,
       code: "REG_ACCOUNT_NOT_FOUND",
+      newId: null,
       message: `Email ${email} is not registered. `,
     };
   }
@@ -109,7 +127,11 @@ const resendConfirmationEmail = async (email, clientUrl) => {
 
 // Generate security token and transmit registration
 // confirmation email
-const requestRegistrationConfirmation = async (email, result, clientUrl) => {
+const requestRegistrationConfirmation = async (
+  email: string,
+  result: AccountResponse,
+  clientUrl: string
+): Promise<AccountResponse> => {
   const token = uuid4();
   try {
     const sqlToken = `insert into security_token (token, email)
@@ -119,14 +141,15 @@ const requestRegistrationConfirmation = async (email, result, clientUrl) => {
     return result;
   } catch (err) {
     return {
-      success: false,
+      isSuccess: false,
       code: "REG_EMAIL_FAILED",
       message: `Sending registration confirmation email to ${email} failed.`,
+      newId: null,
     };
   }
 };
 
-const confirmRegistration = async (token) => {
+const confirmRegistration = async (token: string) => {
   const sql = `select email, date_created
     from security_token where token = $<token>;`;
   try {
@@ -162,16 +185,16 @@ const confirmRegistration = async (token) => {
       message: "Email confirmed.",
       email,
     };
-  } catch (err) {
+  } catch (err: any) {
     return { message: err.message };
   }
 };
 
 // Forgot Password - verify email matches an account and
 // send password reset confirmation email.
-const forgotPassword = async (model) => {
+const forgotPassword = async (model: { email: string; clientUrl: string }) => {
   const { email, clientUrl } = model;
-  let result = null;
+  let result: AccountResponse;
   try {
     const sql = `select id from  login where email ilike $<email>`;
     const row = await db.one(sql, { email });
@@ -187,12 +210,13 @@ const forgotPassword = async (model) => {
         isSuccess: false,
         code: "FORGOT_PASSWORD_ACCOUNT_NOT_FOUND",
         message: `Email ${email} is not registered. `,
+        newId: null,
       };
     }
     // Replace the success result if there is a prob
     // sending email.
     result = await requestResetPasswordConfirmation(email, result, clientUrl);
-    if (result === true) {
+    if (result.isSuccess === true) {
       return {
         isSuccess: true,
         code: "FORGOT_PASSWORD_SUCCESS",
@@ -202,14 +226,18 @@ const forgotPassword = async (model) => {
     } else {
       return result;
     }
-  } catch (err) {
+  } catch (err: any) {
     return Promise.reject(`Unexpected Error: ${err.message}`);
   }
 };
 
 // Generate security token and transmit password reset
 // confirmation email
-const requestResetPasswordConfirmation = async (email, result, clientUrl) => {
+const requestResetPasswordConfirmation = async (
+  email: string,
+  result: AccountResponse,
+  clientUrl: string
+): Promise<AccountResponse> => {
   const token = uuid4();
   try {
     const sqlToken = `insert into security_token (token, email)
@@ -219,15 +247,22 @@ const requestResetPasswordConfirmation = async (email, result, clientUrl) => {
     return result;
   } catch (err) {
     return {
-      success: false,
+      isSuccess: false,
       code: "FORGOT_PASSWORD_EMAIL_FAILED",
       message: `Sending registration confirmation email to ${email} failed.`,
+      newId: null,
     };
   }
 };
 
 // Verify password reset token and change password
-const resetPassword = async ({ token, password }) => {
+const resetPassword = async ({
+  token,
+  password,
+}: {
+  token: string;
+  password: string;
+}) => {
   const sql = `select email, date_created
     from security_token where token = $<token>; `;
   const now = moment();
@@ -265,7 +300,7 @@ const resetPassword = async ({ token, password }) => {
       message: "Password reset.",
       email,
     };
-  } catch (err) {
+  } catch (err: any) {
     return {
       isSuccess: false,
       code: "RESET_PASSWORD_FAILED",
@@ -275,7 +310,11 @@ const resetPassword = async ({ token, password }) => {
   }
 };
 
-const authenticate = async (email, password, tenantId) => {
+const authenticate = async (
+  email: string,
+  password: string,
+  tenantId: string
+) => {
   try {
     const user = await selectByEmail(email, tenantId);
     if (!user.emailConfirmed) {
@@ -321,7 +360,7 @@ const authenticate = async (email, password, tenantId) => {
           isDataEntry: user.isDataEntry,
           emailConfirmed: user.emailConfirmed,
           isGlobalAdmin: user.isGlobalAdmin,
-          isGlobalReporting: user.isGlboalReporting,
+          isGlobalReporting: user.isGlobalReporting,
           role: role.join(","), // join list of roles to string
         },
       };
@@ -475,17 +514,18 @@ const setGlobalPermissions = async (
   }
 };
 
-module.exports = {
-  selectAll,
-  selectById,
-  register,
-  confirmRegistration,
-  resendConfirmationEmail,
-  setTenantPermissions,
-  setGlobalPermissions,
-  forgotPassword,
-  resetPassword,
+export default {
   authenticate,
-  update,
+  confirmRegistration,
+  forgotPassword,
+  register,
   remove,
+  resendConfirmationEmail,
+  resetPassword,
+  selectAll,
+  selectByEmail,
+  selectById,
+  setGlobalPermissions,
+  setTenantPermissions,
+  update,
 };
